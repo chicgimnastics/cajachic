@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+<body>
+
+<h2>🧾 Caja CHIC V1</h2>
+
+<input type="text" id="input" placeholder="Ej: T33, 35, N37">
+<button onclick="agregar()">Agregar</button>
+
+<h3>Productos</h3>
+<ul id="lista"></ul>
+
+<h2 id="total">Total: $0</h2>
+
+<script>
+
+let total = 0
+
+function agregar() {
+
+    let codigo = document.getElementById("input").value.toUpperCase().trim()
+    let precio = 0
+    let producto = ""
+
+    // 🧠 lógica
+    if (codigo.startsWith("N")) {
+        producto = "CHIC 2.0 Negro"
+        precio = 37000
+    } 
+    else if (codigo.startsWith("T")) {
+
+        let talle = parseInt(codigo.substring(1))
+
+        if (talle >= 27 && talle <= 32) {
+            producto = "CHIC Niño"
+            precio = 25000
+        } else {
+            producto = "CHIC 1.0"
+            precio = 30000
+        }
+    } 
+    else {
+        producto = "CHIC 2.0"
+        precio = 35000
+    }
+
+    total += precio
+
+    document.getElementById("lista").innerHTML += `<li>${producto} - ${codigo} - $${precio}</li>`
+    document.getElementById("total").innerText = "Total: $" + total
+
+    document.getElementById("input").value = ""
+}
+
+</script>
+
+</body>
+</html>

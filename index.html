@@ -3,24 +3,118 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <script src="https://unpkg.com/@zxing/library@latest"></script>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background: #f5f5f5;
+}
+
+.header {
+    background: black;
+    color: white;
+    padding: 15px;
+    text-align: center;
+    font-size: 20px;
+}
+
+#video {
+    width: 100%;
+    max-height: 220px;
+    object-fit: cover;
+}
+
+.container {
+    padding: 15px;
+}
+
+.status {
+    text-align: center;
+    margin: 10px 0;
+    font-weight: bold;
+}
+
+.producto {
+    background: white;
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.info {
+    font-size: 14px;
+}
+
+.cantidad {
+    font-size: 12px;
+    color: gray;
+}
+
+.precio {
+    font-weight: bold;
+}
+
+.btn-eliminar {
+    background: red;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 5px 8px;
+}
+
+.total-box {
+    background: white;
+    padding: 15px;
+    border-radius: 12px;
+    margin-top: 10px;
+    text-align: center;
+}
+
+.total {
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.btn-finalizar {
+    width: 100%;
+    margin-top: 10px;
+    padding: 18px;
+    font-size: 20px;
+    background: black;
+    color: white;
+    border: none;
+    border-radius: 12px;
+}
+</style>
+
 </head>
 
 <body>
 
-<h2>🧾 Caja CHIC V5</h2>
+<div class="header">🧾 Caja CHIC PRO</div>
 
-<p id="status">📷 Escaneá un producto</p>
+<video id="video"></video>
 
-<video id="video" width="320"></video>
+<div class="container">
 
-<h3>Productos</h3>
-<ul id="lista"></ul>
+<div id="status" class="status">📷 Escaneá un producto</div>
 
-<h2 id="total">Total: $0</h2>
+<div id="lista"></div>
 
-<button onclick="finalizarVenta()" style="font-size:20px; padding:15px; background:black; color:white; border:none; border-radius:10px;">
+<div class="total-box">
+    <div>Total</div>
+    <div id="total" class="total">$0</div>
+</div>
+
+<button class="btn-finalizar" onclick="finalizarVenta()">
 Finalizar Venta
 </button>
+
+</div>
 
 <script>
 
@@ -32,7 +126,6 @@ let lastCode = null
 let total = 0
 let carrito = []
 
-// 🔊 beep simple
 function beep() {
     const audio = new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg")
     audio.play()
@@ -68,34 +161,25 @@ function procesarCodigo(codigo) {
 
     total += precio
 
-    carrito.push({
-        producto,
-        codigo,
-        precio
-    })
+    carrito.push({ producto, codigo, precio })
 
     renderLista()
 
-    document.getElementById("total").innerText = "Total: $" + total
-    document.getElementById("status").innerText = "✅ " + codigo + " agregado"
+    document.getElementById("total").innerText = "$" + total
+    document.getElementById("status").innerText = "✅ " + codigo
 
     beep()
 }
 
-// 🔥 agrupa productos y muestra cantidad
 function renderLista() {
 
     let agrupado = {}
 
-    carrito.forEach((item, index) => {
+    carrito.forEach(item => {
         let key = item.producto + "_" + item.codigo
 
         if (!agrupado[key]) {
-            agrupado[key] = {
-                ...item,
-                cantidad: 1,
-                index: index
-            }
+            agrupado[key] = { ...item, cantidad: 1 }
         } else {
             agrupado[key].cantidad++
         }
@@ -105,16 +189,21 @@ function renderLista() {
 
     Object.values(agrupado).forEach(item => {
         html += `
-        <li>
-            ${item.producto} - ${item.codigo} x${item.cantidad} - $${item.precio * item.cantidad}
-            <button onclick="eliminar('${item.codigo}')">❌</button>
-        </li>`
+        <div class="producto">
+            <div class="info">
+                ${item.producto} - ${item.codigo}
+                <div class="cantidad">x${item.cantidad}</div>
+            </div>
+            <div>
+                <div class="precio">$${item.precio * item.cantidad}</div>
+                <button class="btn-eliminar" onclick="eliminar('${item.codigo}')">✕</button>
+            </div>
+        </div>`
     })
 
     document.getElementById("lista").innerHTML = html
 }
 
-// ❌ eliminar producto (uno por click)
 function eliminar(codigo) {
 
     let index = carrito.findIndex(p => p.codigo === codigo)
@@ -125,7 +214,7 @@ function eliminar(codigo) {
     }
 
     renderLista()
-    document.getElementById("total").innerText = "Total: $" + total
+    document.getElementById("total").innerText = "$" + total
 }
 
 function startScanner() {
@@ -165,13 +254,12 @@ function finalizarVenta() {
 
     alert("Venta registrada ✅ Total: $" + total)
 
-    // 🔄 reset sin frenar cámara
     carrito = []
     total = 0
     lastCode = null
 
     document.getElementById("lista").innerHTML = ""
-    document.getElementById("total").innerText = "Total: $0"
+    document.getElementById("total").innerText = "$0"
     document.getElementById("status").innerText = "📷 Escaneá un producto"
 }
 

@@ -2,31 +2,41 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://unpkg.com/@zxing/library@latest"></script>
 </head>
 
 <body>
 
-<h2>🧾 Caja CHIC V1</h2>
+<h2>🧾 Caja CHIC V2</h2>
 
-<input type="text" id="input" placeholder="Ej: T33, 35, N37">
-<button onclick="agregar()">Agregar</button>
+<p id="status">📷 Escaneá un producto</p>
+
+<video id="video" width="300"></video>
 
 <h3>Productos</h3>
 <ul id="lista"></ul>
 
 <h2 id="total">Total: $0</h2>
 
+<button onclick="finalizarVenta()">Finalizar Venta</button>
+
 <script>
 
+const codeReader = new ZXing.BrowserBarcodeReader()
+const video = document.getElementById('video')
+
+let scanning = true
+let lastCode = null
 let total = 0
+let carrito = []
 
-function agregar() {
+function procesarCodigo(codigo) {
 
-    let codigo = document.getElementById("input").value.toUpperCase().trim()
+    codigo = codigo.toUpperCase().trim()
+
     let precio = 0
     let producto = ""
 
-    // 🧠 lógica
     if (codigo.startsWith("N")) {
         producto = "CHIC 2.0 Negro"
         precio = 37000
@@ -50,11 +60,62 @@ function agregar() {
 
     total += precio
 
+    carrito.push({
+        producto,
+        codigo,
+        precio
+    })
+
     document.getElementById("lista").innerHTML += `<li>${producto} - ${codigo} - $${precio}</li>`
     document.getElementById("total").innerText = "Total: $" + total
 
-    document.getElementById("input").value = ""
+    document.getElementById("status").innerText = "✅ " + codigo + " agregado"
 }
+
+async function startScanner() {
+
+    await codeReader.decodeFromVideoDevice(null, video, (result, err) => {
+
+        if (result && scanning) {
+
+            let codigo = result.text
+
+            if (codigo === lastCode) return
+
+            lastCode = codigo
+            scanning = false
+
+            procesarCodigo(codigo)
+
+            setTimeout(() => {
+                scanning = true
+            }, 300)
+        }
+    })
+}
+
+function finalizarVenta() {
+
+    if (carrito.length === 0) return
+
+    fetch("https://script.google.com/macros/s/AKfycbzqftjGLBS89N_wp7vf3tPaZyLCljIgyy6DZ6i-snWr7N6rlVeKspAcfWK3JZrfHDyYxg/exec", {
+        method: "POST",
+        body: JSON.stringify({
+            items: carrito,
+            total: total
+        })
+    })
+
+    alert("Venta registrada ✅ Total: $" + total)
+
+    // reset
+    carrito = []
+    total = 0
+    document.getElementById("lista").innerHTML = ""
+    document.getElementById("total").innerText = "Total: $0"
+}
+
+startScanner()
 
 </script>
 

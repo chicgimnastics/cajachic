@@ -49,11 +49,6 @@ body {
     font-size: 14px;
 }
 
-.cantidad {
-    font-size: 12px;
-    color: gray;
-}
-
 .precio {
     font-weight: bold;
 }
@@ -95,7 +90,7 @@ body {
 
 <body>
 
-<div class="header">🧾 Caja CHIC PRO</div>
+<div class="header">🧾 Caja CHIC PRO 2</div>
 
 <video id="video"></video>
 
@@ -109,6 +104,13 @@ body {
     <div>Total</div>
     <div id="total" class="total">$0</div>
 </div>
+
+<!-- 💳 METODO DE PAGO -->
+<select id="pago" style="width:100%; padding:12px; margin-top:10px; border-radius:10px;">
+    <option value="Efectivo">Efectivo</option>
+    <option value="Transferencia">Transferencia</option>
+    <option value="Mercado Pago">Mercado Pago</option>
+</select>
 
 <button class="btn-finalizar" onclick="finalizarVenta()">
 Finalizar Venta
@@ -126,14 +128,14 @@ let lastCode = null
 let total = 0
 let carrito = []
 
+// 🔊 beep
 function beep() {
     const audio = new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg")
     audio.play()
 }
 
-function procesarCodigo(codigo) {
-
-    codigo = codigo.toUpperCase().trim()
+// 🧠 detectar producto
+function getProductoData(codigo) {
 
     let precio = 0
     let producto = ""
@@ -159,18 +161,69 @@ function procesarCodigo(codigo) {
         precio = 35000
     }
 
-    total += precio
+    return { producto, precio }
+}
 
-    carrito.push({ producto, codigo, precio })
+function procesarCodigo(codigo) {
 
+    codigo = codigo.toUpperCase().trim()
+
+    let data = getProductoData(codigo)
+
+    carrito.push({
+        producto: data.producto,
+        codigo: codigo,
+        precio: data.precio
+    })
+
+    recalcularTotal()
     renderLista()
 
-    document.getElementById("total").innerText = "$" + total
     document.getElementById("status").innerText = "✅ " + codigo
-
     beep()
 }
 
+// 🔢 cambiar cantidad
+function cambiarCantidad(codigo, nuevaCantidad) {
+
+    nuevaCantidad = parseInt(nuevaCantidad)
+
+    carrito = carrito.filter(item => item.codigo !== codigo)
+
+    for (let i = 0; i < nuevaCantidad; i++) {
+        let data = getProductoData(codigo)
+
+        carrito.push({
+            producto: data.producto,
+            codigo: codigo,
+            precio: data.precio
+        })
+    }
+
+    recalcularTotal()
+    renderLista()
+}
+
+// ❌ eliminar
+function eliminar(codigo) {
+
+    let index = carrito.findIndex(p => p.codigo === codigo)
+
+    if (index !== -1) {
+        carrito.splice(index, 1)
+    }
+
+    recalcularTotal()
+    renderLista()
+}
+
+// 🔁 recalcular total
+function recalcularTotal() {
+    total = carrito.reduce((acc, item) => acc + item.precio, 0)
+    document.getElementById("total").innerText = "$" + total
+}
+
+// 🧾 render
 function renderLista() {
 
     let agrupado = {}
@@ -192,7 +245,10 @@ function renderLista() {
         <div class="producto">
             <div class="info">
                 ${item.producto} - ${item.codigo}
-                <div class="cantidad">x${item.cantidad}</div>
+                <br>
+                Cantidad: 
+                <input type="number" min="1" value="${item.cantidad}" 
+                onchange="cambiarCantidad('${item.codigo}', this.value)" style="width:60px;">
             </div>
             <div>
                 <div class="precio">$${item.precio * item.cantidad}</div>
@@ -204,19 +260,7 @@ function renderLista() {
     document.getElementById("lista").innerHTML = html
 }
 
-function eliminar(codigo) {
-
-    let index = carrito.findIndex(p => p.codigo === codigo)
-
-    if (index !== -1) {
-        total -= carrito[index].precio
-        carrito.splice(index, 1)
-    }
-
-    renderLista()
-    document.getElementById("total").innerText = "$" + total
-}
-
+// 📷 scanner
 function startScanner() {
 
     codeReader.decodeFromVideoDevice(null, video, (result, err) => {
@@ -240,15 +284,19 @@ function startScanner() {
     })
 }
 
+// 💳 finalizar venta
 function finalizarVenta() {
 
     if (carrito.length === 0) return
+
+    let metodoPago = document.getElementById("pago").value
 
     fetch("https://script.google.com/macros/s/AKfycbzqftjGLBS89N_wp7vf3tPaZyLCljIgyy6DZ6i-snWr7N6rlVeKspAcfWK3JZrfHDyYxg/exec", {
         method: "POST",
         body: JSON.stringify({
             items: carrito,
-            total: total
+            total: total,
+            pago: metodoPago
         })
     })
 

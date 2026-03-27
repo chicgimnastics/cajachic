@@ -7,18 +7,20 @@
 
 <body>
 
-<h2>🧾 Caja CHIC V4</h2>
+<h2>🧾 Caja CHIC V5</h2>
 
 <p id="status">📷 Escaneá un producto</p>
 
-<video id="video" width="300"></video>
+<video id="video" width="320"></video>
 
 <h3>Productos</h3>
 <ul id="lista"></ul>
 
 <h2 id="total">Total: $0</h2>
 
-<button onclick="finalizarVenta()">Finalizar Venta</button>
+<button onclick="finalizarVenta()" style="font-size:20px; padding:15px; background:black; color:white; border:none; border-radius:10px;">
+Finalizar Venta
+</button>
 
 <script>
 
@@ -29,6 +31,12 @@ let scanning = true
 let lastCode = null
 let total = 0
 let carrito = []
+
+// 🔊 beep simple
+function beep() {
+    const audio = new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg")
+    audio.play()
+}
 
 function procesarCodigo(codigo) {
 
@@ -66,13 +74,61 @@ function procesarCodigo(codigo) {
         precio
     })
 
-    document.getElementById("lista").innerHTML += `<li>${producto} - ${codigo} - $${precio}</li>`
-    document.getElementById("total").innerText = "Total: $" + total
+    renderLista()
 
+    document.getElementById("total").innerText = "Total: $" + total
     document.getElementById("status").innerText = "✅ " + codigo + " agregado"
+
+    beep()
 }
 
-async function startScanner() {
+// 🔥 agrupa productos y muestra cantidad
+function renderLista() {
+
+    let agrupado = {}
+
+    carrito.forEach((item, index) => {
+        let key = item.producto + "_" + item.codigo
+
+        if (!agrupado[key]) {
+            agrupado[key] = {
+                ...item,
+                cantidad: 1,
+                index: index
+            }
+        } else {
+            agrupado[key].cantidad++
+        }
+    })
+
+    let html = ""
+
+    Object.values(agrupado).forEach(item => {
+        html += `
+        <li>
+            ${item.producto} - ${item.codigo} x${item.cantidad} - $${item.precio * item.cantidad}
+            <button onclick="eliminar('${item.codigo}')">❌</button>
+        </li>`
+    })
+
+    document.getElementById("lista").innerHTML = html
+}
+
+// ❌ eliminar producto (uno por click)
+function eliminar(codigo) {
+
+    let index = carrito.findIndex(p => p.codigo === codigo)
+
+    if (index !== -1) {
+        total -= carrito[index].precio
+        carrito.splice(index, 1)
+    }
+
+    renderLista()
+    document.getElementById("total").innerText = "Total: $" + total
+}
+
+function startScanner() {
 
     codeReader.decodeFromVideoDevice(null, video, (result, err) => {
 
@@ -90,7 +146,7 @@ async function startScanner() {
 
             setTimeout(() => {
                 scanning = true
-            }, 300)
+            }, 250)
         }
     })
 }
@@ -109,11 +165,14 @@ function finalizarVenta() {
 
     alert("Venta registrada ✅ Total: $" + total)
 
-    // reset
+    // 🔄 reset sin frenar cámara
     carrito = []
     total = 0
+    lastCode = null
+
     document.getElementById("lista").innerHTML = ""
     document.getElementById("total").innerText = "Total: $0"
+    document.getElementById("status").innerText = "📷 Escaneá un producto"
 }
 
 startScanner()

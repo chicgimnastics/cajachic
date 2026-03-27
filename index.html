@@ -90,7 +90,7 @@ body {
 
 <body>
 
-<div class="header">🧾 Caja CHIC PRO 2.1</div>
+<div class="header">🧾 Caja CHIC PRO 2.2</div>
 
 <video id="video"></video>
 
@@ -127,6 +127,7 @@ let scanning = true
 let lastCode = null
 let total = 0
 let carrito = []
+let controls = null    
 
 // 🔊 beep
 function beep() {
@@ -263,7 +264,9 @@ function renderLista() {
 // 📷 scanner
 function startScanner() {
 
-    codeReader.decodeFromVideoDevice(null, video, (result, err) => {
+    codeReader.decodeFromVideoDevice(null, video, (result, err, ctrl) => {
+
+        if (!controls) controls = ctrl
 
         if (result && scanning) {
 
@@ -309,6 +312,16 @@ function finalizarVenta() {
     document.getElementById("lista").innerHTML = ""
     document.getElementById("total").innerText = "$0"
     document.getElementById("status").innerText = "📷 Escaneá un producto"
+
+    // 🔁 REINICIAR CÁMARA
+    if (controls) {
+        controls.stop()
+    }
+
+    setTimeout(() => {
+        scanning = true
+        startScanner()
+    }, 300)
 }
 
 startScanner()

@@ -4,21 +4,80 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-/* 🔥 MISMO DISEÑO TUYO (NO TOCO NADA) */
-body { font-family: Arial; margin: 0; background: #f5f5f5; }
-.header { background: black; color: white; padding: 15px; text-align: center; }
-.container { padding: 15px; }
-.producto { background: white; border-radius: 12px; padding: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; }
-.total-box { background: white; padding: 15px; border-radius: 12px; text-align: center; }
-.total { font-size: 28px; font-weight: bold; }
-.btn-finalizar { width:100%; padding:18px; font-size:20px; background:black; color:white; border:none; border-radius:12px;}
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background: #f5f5f5;
+}
+
+.header {
+    background: black;
+    color: white;
+    padding: 15px;
+    text-align: center;
+    font-size: 20px;
+}
+
+.container {
+    padding: 15px;
+}
+
+.producto {
+    background: white;
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.info {
+    font-size: 14px;
+}
+
+.precio {
+    font-weight: bold;
+}
+
+.btn-eliminar {
+    background: red;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 5px 8px;
+}
+
+.total-box {
+    background: white;
+    padding: 15px;
+    border-radius: 12px;
+    margin-top: 10px;
+    text-align: center;
+}
+
+.total {
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.btn-finalizar {
+    width: 100%;
+    margin-top: 10px;
+    padding: 18px;
+    font-size: 20px;
+    background: black;
+    color: white;
+    border: none;
+    border-radius: 12px;
+}
 </style>
 
 </head>
 
 <body>
 
-<div class="header">🧾 Caja CHIC PRO 3.2(Pantalla)</div>
+<div class="header">🧾 Caja CHIC PRO 3.3 (Pantalla)</div>
 
 <div class="container">
 
@@ -27,14 +86,14 @@ body { font-family: Arial; margin: 0; background: #f5f5f5; }
 <div id="lista"></div>
 
 <div class="total-box">
-<div>Total</div>
-<div id="total" class="total">$0</div>
+    <div>Total</div>
+    <div id="total" class="total">$0</div>
 </div>
 
-<select id="pago">
-<option>Efectivo</option>
-<option>Transferencia</option>
-<option>Mercado Pago</option>
+<select id="pago" style="width:100%; padding:12px; margin-top:10px; border-radius:10px;">
+    <option value="Efectivo">Efectivo</option>
+    <option value="Transferencia">Transferencia</option>
+    <option value="Mercado Pago">Mercado Pago</option>
 </select>
 
 <button class="btn-finalizar" onclick="finalizarVenta()">Finalizar Venta</button>
@@ -55,7 +114,7 @@ function beep() {
     audio.play()
 }
 
-// 🧠 lógica productos (igual que ya tenías)
+// 🧠 lógica productos
 function getProductoData(codigo) {
 
     if (codigo.startsWith("N")) return { producto:"CHIC 2.0 Negro", precio:37000 }
@@ -68,23 +127,27 @@ function getProductoData(codigo) {
     return { producto:"CHIC 2.0", precio:35000 }
 }
 
-// 🟢 AGREGA PRODUCTO (MISMO SISTEMA)
+// ➕ agregar producto
 function procesarCodigo(codigo) {
+
+    codigo = codigo.toUpperCase().trim()
 
     let data = getProductoData(codigo)
 
     carrito.push({
-        producto:data.producto,
-        codigo:codigo,
-        precio:data.precio
+        producto: data.producto,
+        codigo: codigo,
+        precio: data.precio
     })
 
     recalcularTotal()
     renderLista()
+
+    document.getElementById("status").innerText = "✅ " + codigo
     beep()
 }
 
-// 🔁 ESCUCHAR SCANNER
+// 🔁 escuchar scanner (rápido)
 async function escucharScanner() {
 
     let res = await fetch(SCRIPT_URL)
@@ -100,31 +163,92 @@ async function escucharScanner() {
     ultimaFila = data.length
 }
 
-setInterval(escucharScanner, 400)
+// ⚡ velocidad (puede bajar hasta 200)
+setInterval(escucharScanner, 300)
 
-// 🔁 resto igual
-function recalcularTotal() {
-    total = carrito.reduce((acc, i)=>acc+i.precio,0)
-    document.getElementById("total").innerText = "$"+total
+// 🔢 cambiar cantidad
+function cambiarCantidad(codigo, nuevaCantidad) {
+
+    nuevaCantidad = parseInt(nuevaCantidad)
+
+    carrito = carrito.filter(item => item.codigo !== codigo)
+
+    for (let i = 0; i < nuevaCantidad; i++) {
+        let data = getProductoData(codigo)
+
+        carrito.push({
+            producto: data.producto,
+            codigo: codigo,
+            precio: data.precio
+        })
+    }
+
+    recalcularTotal()
+    renderLista()
 }
 
+// ❌ eliminar
+function eliminar(codigo) {
+
+    let index = carrito.findIndex(p => p.codigo === codigo)
+
+    if (index !== -1) {
+        carrito.splice(index, 1)
+    }
+
+    recalcularTotal()
+    renderLista()
+}
+
+// 🔁 total
+function recalcularTotal() {
+    total = carrito.reduce((acc, item) => acc + item.precio, 0)
+    document.getElementById("total").innerText = "$" + total
+}
+
+// 🧾 render agrupado
 function renderLista() {
+
+    let agrupado = {}
+
+    carrito.forEach(item => {
+        let key = item.producto + "_" + item.codigo
+
+        if (!agrupado[key]) {
+            agrupado[key] = { ...item, cantidad: 1 }
+        } else {
+            agrupado[key].cantidad++
+        }
+    })
 
     let html = ""
 
-    carrito.forEach(item=>{
-        html += `<div class="producto">
-        ${item.producto} - ${item.codigo} - $${item.precio}
+    Object.values(agrupado).forEach(item => {
+        html += `
+        <div class="producto">
+            <div class="info">
+                ${item.producto} - ${item.codigo}
+                <br>
+                Cantidad:
+                <input type="number" min="1" value="${item.cantidad}" 
+                onchange="cambiarCantidad('${item.codigo}', this.value)" style="width:60px;">
+            </div>
+            <div>
+                <div class="precio">$${item.precio * item.cantidad}</div>
+                <button class="btn-eliminar" onclick="eliminar('${item.codigo}')">✕</button>
+            </div>
         </div>`
     })
 
     document.getElementById("lista").innerHTML = html
 }
 
-// 💳 FINALIZAR
+// 💳 finalizar venta
 function finalizarVenta() {
 
-    let pago = document.getElementById("pago").value
+    if (carrito.length === 0) return
+
+    let metodoPago = document.getElementById("pago").value
 
     fetch(SCRIPT_URL,{
         method:"POST",
@@ -132,16 +256,19 @@ function finalizarVenta() {
             tipo:"venta",
             items:carrito,
             total:total,
-            pago:pago
+            pago:metodoPago
         })
     })
 
-    alert("Venta registrada ✅")
+    alert("Venta registrada ✅ Total: $" + total)
 
     carrito=[]
     total=0
-    renderLista()
-    recalcularTotal()
+    ultimaFila = 0
+
+    document.getElementById("lista").innerHTML = ""
+    document.getElementById("total").innerText = "$0"
+    document.getElementById("status").innerText = "📡 Esperando scanner..."
 }
 
 </script>

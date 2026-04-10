@@ -77,7 +77,7 @@ body {
 
 <body>
 
-<div class="header">🧾 Caja CHIC PRO 3.3 (Pantalla)</div>
+<div class="header">🧾 Caja CHIC PRO 3.4(Pantalla)</div>
 
 <div class="container">
 
@@ -96,7 +96,9 @@ body {
     <option value="Mercado Pago">Mercado Pago</option>
 </select>
 
-<button class="btn-finalizar" onclick="finalizarVenta()">Finalizar Venta</button>
+<button class="btn-finalizar" onclick="finalizarVenta()">
+Finalizar Venta
+</button>
 
 </div>
 
@@ -105,6 +107,7 @@ body {
 let carrito = []
 let total = 0
 let ultimaFila = 0
+let codigosProcesados = new Set()
 
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzqftjGLBS89N_wp7vf3tPaZyLCljIgyy6DZ6i-snWr7N6rlVeKspAcfWK3JZrfHDyYxg/exec"
 
@@ -147,7 +150,7 @@ function procesarCodigo(codigo) {
     beep()
 }
 
-// 🔁 escuchar scanner (rápido)
+// 🔁 escuchar scanner (FIX TOTAL)
 async function escucharScanner() {
 
     let res = await fetch(SCRIPT_URL)
@@ -156,14 +159,28 @@ async function escucharScanner() {
     let nuevos = data.slice(ultimaFila)
 
     nuevos.forEach(row => {
+
         let codigo = row[1]
-        if (codigo) procesarCodigo(codigo)
+
+        // 🛑 FILTROS ANTI BUG
+        if (!codigo) return
+        if (codigo === "Codigo" || codigo === "Código") return
+        if (codigo.length < 2) return
+
+        // 🛑 VALIDAR FORMATO
+        if (!/^[TN]?\d+$/i.test(codigo)) return
+
+        // 🛑 EVITAR DUPLICADOS
+        if (codigosProcesados.has(codigo)) return
+        codigosProcesados.add(codigo)
+
+        procesarCodigo(codigo)
     })
 
     ultimaFila = data.length
 }
 
-// ⚡ velocidad (puede bajar hasta 200)
+// ⚡ velocidad rápida
 setInterval(escucharScanner, 300)
 
 // 🔢 cambiar cantidad
@@ -262,9 +279,10 @@ function finalizarVenta() {
 
     alert("Venta registrada ✅ Total: $" + total)
 
-    carrito=[]
-    total=0
+    carrito = []
+    total = 0
     ultimaFila = 0
+    codigosProcesados.clear()
 
     document.getElementById("lista").innerHTML = ""
     document.getElementById("total").innerText = "$0"

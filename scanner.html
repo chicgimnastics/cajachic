@@ -1,0 +1,27 @@
+<script src="https://unpkg.com/@zxing/library@latest"></script>
+
+<video id="video"></video>
+
+<script>
+
+const codeReader = new ZXing.BrowserMultiFormatReader()
+const video = document.getElementById('video')
+
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzqftjGLBS89N_wp7vf3tPaZyLCljIgyy6DZ6i-snWr7N6rlVeKspAcfWK3JZrfHDyYxg/exec"
+
+codeReader.decodeFromVideoDevice(null, video, (result) => {
+
+    if (result) {
+
+        fetch(SCRIPT_URL,{
+            method:"POST",
+            body:JSON.stringify({
+                tipo:"scan",
+                codigo: result.text
+            })
+        })
+
+    }
+})
+
+</script>

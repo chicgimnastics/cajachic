@@ -63,7 +63,7 @@ body {
 
 <body>
 
-<div class="header">🧾 Caja CHIC PRO FIREBASE v1.4</div>
+<div class="header">🧾 Caja CHIC PRO FIREBASE v2.0</div>
 
 <div class="container">
 
@@ -76,6 +76,23 @@ body {
     <option>Transferencia</option>
     <option>Mercado Pago</option>
 </select>
+
+<!-- 💵 EFECTIVO -->
+<div id="efectivoBox" style="margin-top:10px;">
+    
+    <input 
+        type="number" 
+        id="pagaCon" 
+        placeholder="Paga con..." 
+        style="width:100%; padding:10px; margin-bottom:5px;"
+        oninput="calcularVuelto()"
+    >
+
+    <div id="vuelto" style="font-weight:bold; text-align:center;">
+        Vuelto: $0
+    </div>
+
+</div>
 
 <button class="btn-finalizar" onclick="finalizarVenta()">
 Finalizar Venta
@@ -92,7 +109,6 @@ const firebaseConfig = {
   projectId: "chic-pos",
 };
 
-// 🔥 URL GOOGLE SHEETS
 const URL_SHEETS = "https://script.google.com/macros/s/AKfycbzqftjGLBS89N_wp7vf3tPaZyLCljIgyy6DZ6i-snWr7N6rlVeKspAcfWK3JZrfHDyYxg/exec"
 
 firebase.initializeApp(firebaseConfig);
@@ -115,16 +131,14 @@ function getProductoData(codigo) {
     return { producto: "CHIC 2.0", precio: 35000 }
 }
 
-// 👂 escucha realtime
+// 👂 FIREBASE
 let primeraCarga = true
-
 const inicio = Date.now()
 
 db.collection("scanner")
 .where("timestamp", ">", inicio)
 .onSnapshot(snapshot => {
 
-    // 🚫 ignorar datos iniciales (cache)
     if (primeraCarga) {
         primeraCarga = false
         return
@@ -189,9 +203,11 @@ function render() {
 
     document.getElementById("lista").innerHTML = html
     document.getElementById("total").innerText = "$" + total
+
+    calcularVuelto()
 }
 
-// 🔢 cambiar cantidad
+// 🔢 cantidad
 function cambiarCantidad(codigo, cantidad) {
 
     cantidad = parseInt(cantidad)
@@ -223,14 +239,39 @@ function eliminar(codigo) {
     render()
 }
 
-// 💳 finalizar venta
+// 💰 vuelto
+function calcularVuelto() {
+
+    let metodo = document.getElementById("pago").value
+    let box = document.getElementById("efectivoBox")
+
+    if (metodo === "Efectivo") {
+        box.style.display = "block"
+
+        let paga = parseFloat(document.getElementById("pagaCon").value) || 0
+        let vuelto = paga - total
+
+        if (vuelto < 0) {
+            document.getElementById("vuelto").innerText = "Faltan $" + Math.abs(vuelto)
+        } else {
+            document.getElementById("vuelto").innerText = "Vuelto: $" + vuelto
+        }
+
+    } else {
+        box.style.display = "none"
+    }
+}
+
+// detectar cambio pago
+document.getElementById("pago").addEventListener("change", calcularVuelto)
+
+// 💳 finalizar
 function finalizarVenta() {
 
     if (carrito.length === 0) return
 
     let pago = document.getElementById("pago").value
 
-    // 🧠 agrupar productos
     let agrupado = {}
 
     carrito.forEach(item => {
@@ -245,7 +286,6 @@ function finalizarVenta() {
 
     let itemsFinal = Object.values(agrupado)
 
-    // 📤 enviar a Google Sheets
     fetch(URL_SHEETS, {
         method: "POST",
         body: JSON.stringify({
@@ -260,7 +300,9 @@ function finalizarVenta() {
     carrito = []
     render()
 
-    // 🧹 limpiar Firebase
+    document.getElementById("pagaCon").value = ""
+    document.getElementById("vuelto").innerText = "Vuelto: $0"
+
     db.collection("scanner").get().then(snapshot => {
         snapshot.forEach(doc => doc.ref.delete())
     })

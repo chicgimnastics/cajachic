@@ -77,7 +77,7 @@ body {
 
 <body>
 
-<div class="header">🧾 Caja CHIC PRO 3.4(Pantalla)</div>
+<div class="header">🧾 Caja CHIC PRO 3.5(Pantalla)</div>
 
 <div class="container">
 
@@ -108,6 +108,7 @@ let carrito = []
 let total = 0
 let ultimaFila = 0
 let codigosProcesados = new Set()
+let ventaActiva = true
 
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzqftjGLBS89N_wp7vf3tPaZyLCljIgyy6DZ6i-snWr7N6rlVeKspAcfWK3JZrfHDyYxg/exec"
 
@@ -151,35 +152,45 @@ function procesarCodigo(codigo) {
 }
 
 // 🔁 escuchar scanner (FIX TOTAL)
+let requestEnCurso = false
+
 async function escucharScanner() {
 
-    let res = await fetch(SCRIPT_URL)
-    let data = await res.json()
+    if (!ventaActiva) return
+    if (requestEnCurso) return
 
-    let nuevos = data.slice(ultimaFila)
+    requestEnCurso = true
 
-    nuevos.forEach(row => {
+    try {
 
-        let codigo = row[1]
+        let res = await fetch(SCRIPT_URL + "?t=" + Date.now()) // evita cache
+        let data = await res.json()
 
-        // 🛑 FILTROS ANTI BUG
-        if (!codigo) return
-        if (codigo === "Codigo" || codigo === "Código") return
-        if (codigo.length < 2) return
+        let nuevos = data.slice(ultimaFila)
 
-        // 🛑 VALIDAR FORMATO
-        if (!/^[TN]?\d+$/i.test(codigo)) return
+        nuevos.forEach(row => {
 
-        // 🛑 EVITAR DUPLICADOS
-        if (codigosProcesados.has(codigo)) return
-        codigosProcesados.add(codigo)
+            let codigo = row[1]
 
-        procesarCodigo(codigo)
-    })
+            if (!codigo) return
+            if (codigo === "Codigo" || codigo === "Código") return
+            if (codigo.length < 2) return
+            if (!/^[TN]?\d+$/i.test(codigo)) return
 
-    ultimaFila = data.length
+            if (codigosProcesados.has(codigo)) return
+            codigosProcesados.add(codigo)
+
+            procesarCodigo(codigo)
+        })
+
+        ultimaFila = data.length
+
+    } catch (e) {
+        console.log("error fetch")
+    }
+
+    requestEnCurso = false
 }
-
 // ⚡ velocidad rápida
 setInterval(escucharScanner, 300)
 
@@ -265,6 +276,8 @@ function finalizarVenta() {
 
     if (carrito.length === 0) return
 
+    ventaActiva = false // 🛑 corta lectura
+
     let metodoPago = document.getElementById("pago").value
 
     fetch(SCRIPT_URL,{
@@ -287,6 +300,11 @@ function finalizarVenta() {
     document.getElementById("lista").innerHTML = ""
     document.getElementById("total").innerText = "$0"
     document.getElementById("status").innerText = "📡 Esperando scanner..."
+
+    // ⏱️ reactivar después de limpiar
+    setTimeout(() => {
+        ventaActiva = true
+    }, 1000)
 }
 
 </script>

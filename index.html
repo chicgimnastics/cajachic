@@ -3,35 +3,102 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<!-- Firebase COMPAT -->
+<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+<style>
+body {
+    font-family: Arial;
+    margin: 0;
+    background: #f5f5f5;
+}
+
+.header {
+    background: black;
+    color: white;
+    padding: 15px;
+    text-align: center;
+}
+
+.container {
+    padding: 15px;
+}
+
+.producto {
+    background: white;
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.btn-eliminar {
+    background: red;
+    color: white;
+    border: none;
+    border-radius: 6px;
+}
+
+.total {
+    font-size: 28px;
+    text-align: center;
+    margin-top: 10px;
+}
+
+.btn-finalizar {
+    width: 100%;
+    padding: 18px;
+    font-size: 20px;
+    background: black;
+    color: white;
+    border-radius: 12px;
+    border: none;
+    margin-top: 10px;
+}
+</style>
+
 </head>
 
 <body>
 
-<h2>🧾 Caja CHIC FIREBASE v1</h2>
+<div class="header">🧾 Caja CHIC PRO FIREBASE v1.1</div>
+
+<div class="container">
 
 <div id="lista"></div>
-<h2 id="total">$0</h2>
+
+<div class="total" id="total">$0</div>
+
+<select id="pago" style="width:100%; padding:10px; margin-top:10px;">
+    <option>Efectivo</option>
+    <option>Transferencia</option>
+    <option>Mercado Pago</option>
+</select>
+
+<button class="btn-finalizar" onclick="finalizarVenta()">
+Finalizar Venta
+</button>
+
+</div>
 
 <script>
 
-// 🔥 MISMA CONFIG
+// 🔥 CONFIG
 const firebaseConfig = {
   apiKey: "AIzaSyCe2I-jg8A3nmVC0fJLxgVlEkjfYzKi3ns",
   authDomain: "chic-pos.firebaseapp.com",
   projectId: "chic-pos",
-  storageBucket: "chic-pos.firebasestorage.app",
-  messagingSenderId: "136052805362",
-  appId: "1:136052805362:web:82ede68bef94a0d497ca6b"
 };
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
+let carrito = []
 let total = 0
 
+// 🧠 producto
 function getProductoData(codigo) {
 
     if (codigo.startsWith("N")) return { producto: "CHIC 2.0 Negro", precio: 37000 }
@@ -45,7 +112,7 @@ function getProductoData(codigo) {
     return { producto: "CHIC 2.0", precio: 35000 }
 }
 
-// 👂 TIEMPO REAL SIN DELAY
+// 👂 escucha realtime
 db.collection("scanner")
 .orderBy("timestamp", "desc")
 .limit(1)
@@ -59,15 +126,108 @@ db.collection("scanner")
 
             let data = getProductoData(codigo)
 
-            total += data.precio
+            carrito.push({
+                producto: data.producto,
+                codigo: codigo,
+                precio: data.precio
+            })
 
-            document.getElementById("lista").innerHTML += 
-                `<p>${data.producto} - ${codigo} - $${data.precio}</p>`
-
-            document.getElementById("total").innerText = "$" + total
+            render()
         }
     })
 })
+
+// 🔁 render
+function render() {
+
+    let agrupado = {}
+
+    carrito.forEach(item => {
+        let key = item.producto + "_" + item.codigo
+
+        if (!agrupado[key]) {
+            agrupado[key] = { ...item, cantidad: 1 }
+        } else {
+            agrupado[key].cantidad++
+        }
+    })
+
+    let html = ""
+    total = 0
+
+    Object.values(agrupado).forEach(item => {
+
+        total += item.precio * item.cantidad
+
+        html += `
+        <div class="producto">
+            <div>
+                ${item.producto} - ${item.codigo}<br>
+                Cantidad: 
+                <input type="number" value="${item.cantidad}" min="1"
+                onchange="cambiarCantidad('${item.codigo}', this.value)">
+            </div>
+            <div>
+                $${item.precio * item.cantidad}
+                <br>
+                <button class="btn-eliminar" onclick="eliminar('${item.codigo}')">✕</button>
+            </div>
+        </div>`
+    })
+
+    document.getElementById("lista").innerHTML = html
+    document.getElementById("total").innerText = "$" + total
+}
+
+// 🔢 cambiar cantidad
+function cambiarCantidad(codigo, cantidad) {
+
+    cantidad = parseInt(cantidad)
+
+    carrito = carrito.filter(item => item.codigo !== codigo)
+
+    for (let i = 0; i < cantidad; i++) {
+        let data = getProductoData(codigo)
+
+        carrito.push({
+            producto: data.producto,
+            codigo: codigo,
+            precio: data.precio
+        })
+    }
+
+    render()
+}
+
+// ❌ eliminar
+function eliminar(codigo) {
+
+    let index = carrito.findIndex(p => p.codigo === codigo)
+
+    if (index !== -1) {
+        carrito.splice(index, 1)
+    }
+
+    render()
+}
+
+// 💳 finalizar venta
+function finalizarVenta() {
+
+    if (carrito.length === 0) return
+
+    let pago = document.getElementById("pago").value
+
+    alert("Venta registrada ✅ Total: $" + total)
+
+    carrito = []
+    render()
+
+    // 🧹 LIMPIAR FIREBASE (CLAVE)
+    db.collection("scanner").get().then(snapshot => {
+        snapshot.forEach(doc => doc.ref.delete())
+    })
+}
 
 </script>
 

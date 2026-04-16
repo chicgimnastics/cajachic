@@ -3,309 +3,71 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<style>
-body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    background: #f5f5f5;
-}
-
-.header {
-    background: black;
-    color: white;
-    padding: 15px;
-    text-align: center;
-    font-size: 20px;
-}
-
-.container {
-    padding: 15px;
-}
-
-.producto {
-    background: white;
-    border-radius: 12px;
-    padding: 12px;
-    margin-bottom: 10px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.info {
-    font-size: 14px;
-}
-
-.precio {
-    font-weight: bold;
-}
-
-.btn-eliminar {
-    background: red;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    padding: 5px 8px;
-}
-
-.total-box {
-    background: white;
-    padding: 15px;
-    border-radius: 12px;
-    margin-top: 10px;
-    text-align: center;
-}
-
-.total {
-    font-size: 28px;
-    font-weight: bold;
-}
-
-.btn-finalizar {
-    width: 100%;
-    margin-top: 10px;
-    padding: 18px;
-    font-size: 20px;
-    background: black;
-    color: white;
-    border: none;
-    border-radius: 12px;
-}
-</style>
-
+<!-- Firebase COMPAT -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 </head>
 
 <body>
 
-<div class="header">🧾 Caja CHIC PRO 3.5(Pantalla)</div>
-
-<div class="container">
-
-<div id="status">📡 Esperando scanner...</div>
+<h2>🧾 Caja CHIC FIREBASE v1</h2>
 
 <div id="lista"></div>
-
-<div class="total-box">
-    <div>Total</div>
-    <div id="total" class="total">$0</div>
-</div>
-
-<select id="pago" style="width:100%; padding:12px; margin-top:10px; border-radius:10px;">
-    <option value="Efectivo">Efectivo</option>
-    <option value="Transferencia">Transferencia</option>
-    <option value="Mercado Pago">Mercado Pago</option>
-</select>
-
-<button class="btn-finalizar" onclick="finalizarVenta()">
-Finalizar Venta
-</button>
-
-</div>
+<h2 id="total">$0</h2>
 
 <script>
 
-let carrito = []
+// 🔥 MISMA CONFIG
+const firebaseConfig = {
+  apiKey: "AIzaSyCe2I-jg8A3nmVC0fJLxgVlEkjfYzKi3ns",
+  authDomain: "chic-pos.firebaseapp.com",
+  projectId: "chic-pos",
+  storageBucket: "chic-pos.firebasestorage.app",
+  messagingSenderId: "136052805362",
+  appId: "1:136052805362:web:82ede68bef94a0d497ca6b"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
 let total = 0
-let ultimaFila = 0
-let codigosProcesados = new Set()
-let ventaActiva = true
 
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzqftjGLBS89N_wp7vf3tPaZyLCljIgyy6DZ6i-snWr7N6rlVeKspAcfWK3JZrfHDyYxg/exec"
-
-// 🔊 beep
-function beep() {
-    const audio = new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg")
-    audio.play()
-}
-
-// 🧠 lógica productos
 function getProductoData(codigo) {
 
-    if (codigo.startsWith("N")) return { producto:"CHIC 2.0 Negro", precio:37000 }
+    if (codigo.startsWith("N")) return { producto: "CHIC 2.0 Negro", precio: 37000 }
 
     if (codigo.startsWith("T")) {
-        let t = parseInt(codigo.substring(1))
-        return (t<=32) ? { producto:"CHIC Niño", precio:25000 } : { producto:"CHIC 1.0", precio:30000 }
+        let talle = parseInt(codigo.substring(1))
+        if (talle <= 32) return { producto: "CHIC Niño", precio: 25000 }
+        return { producto: "CHIC 1.0", precio: 30000 }
     }
 
-    return { producto:"CHIC 2.0", precio:35000 }
+    return { producto: "CHIC 2.0", precio: 35000 }
 }
 
-// ➕ agregar producto
-function procesarCodigo(codigo) {
+// 👂 TIEMPO REAL SIN DELAY
+db.collection("scanner")
+.orderBy("timestamp", "desc")
+.limit(1)
+.onSnapshot(snapshot => {
 
-    codigo = codigo.toUpperCase().trim()
+    snapshot.docChanges().forEach(change => {
 
-    let data = getProductoData(codigo)
+        if (change.type === "added") {
 
-    carrito.push({
-        producto: data.producto,
-        codigo: codigo,
-        precio: data.precio
-    })
+            let codigo = change.doc.data().codigo
 
-    recalcularTotal()
-    renderLista()
+            let data = getProductoData(codigo)
 
-    document.getElementById("status").innerText = "✅ " + codigo
-    beep()
-}
+            total += data.precio
 
-// 🔁 escuchar scanner (FIX TOTAL)
-let requestEnCurso = false
+            document.getElementById("lista").innerHTML += 
+                `<p>${data.producto} - ${codigo} - $${data.precio}</p>`
 
-async function escucharScanner() {
-
-    if (!ventaActiva) return
-    if (requestEnCurso) return
-
-    requestEnCurso = true
-
-    try {
-
-        let res = await fetch(SCRIPT_URL + "?t=" + Date.now()) // evita cache
-        let data = await res.json()
-
-        let nuevos = data.slice(ultimaFila)
-
-        nuevos.forEach(row => {
-
-            let codigo = row[1]
-
-            if (!codigo) return
-            if (codigo === "Codigo" || codigo === "Código") return
-            if (codigo.length < 2) return
-            if (!/^[TN]?\d+$/i.test(codigo)) return
-
-            if (codigosProcesados.has(codigo)) return
-            codigosProcesados.add(codigo)
-
-            procesarCodigo(codigo)
-        })
-
-        ultimaFila = data.length
-
-    } catch (e) {
-        console.log("error fetch")
-    }
-
-    requestEnCurso = false
-}
-// ⚡ velocidad rápida
-setInterval(escucharScanner, 300)
-
-// 🔢 cambiar cantidad
-function cambiarCantidad(codigo, nuevaCantidad) {
-
-    nuevaCantidad = parseInt(nuevaCantidad)
-
-    carrito = carrito.filter(item => item.codigo !== codigo)
-
-    for (let i = 0; i < nuevaCantidad; i++) {
-        let data = getProductoData(codigo)
-
-        carrito.push({
-            producto: data.producto,
-            codigo: codigo,
-            precio: data.precio
-        })
-    }
-
-    recalcularTotal()
-    renderLista()
-}
-
-// ❌ eliminar
-function eliminar(codigo) {
-
-    let index = carrito.findIndex(p => p.codigo === codigo)
-
-    if (index !== -1) {
-        carrito.splice(index, 1)
-    }
-
-    recalcularTotal()
-    renderLista()
-}
-
-// 🔁 total
-function recalcularTotal() {
-    total = carrito.reduce((acc, item) => acc + item.precio, 0)
-    document.getElementById("total").innerText = "$" + total
-}
-
-// 🧾 render agrupado
-function renderLista() {
-
-    let agrupado = {}
-
-    carrito.forEach(item => {
-        let key = item.producto + "_" + item.codigo
-
-        if (!agrupado[key]) {
-            agrupado[key] = { ...item, cantidad: 1 }
-        } else {
-            agrupado[key].cantidad++
+            document.getElementById("total").innerText = "$" + total
         }
     })
-
-    let html = ""
-
-    Object.values(agrupado).forEach(item => {
-        html += `
-        <div class="producto">
-            <div class="info">
-                ${item.producto} - ${item.codigo}
-                <br>
-                Cantidad:
-                <input type="number" min="1" value="${item.cantidad}" 
-                onchange="cambiarCantidad('${item.codigo}', this.value)" style="width:60px;">
-            </div>
-            <div>
-                <div class="precio">$${item.precio * item.cantidad}</div>
-                <button class="btn-eliminar" onclick="eliminar('${item.codigo}')">✕</button>
-            </div>
-        </div>`
-    })
-
-    document.getElementById("lista").innerHTML = html
-}
-
-// 💳 finalizar venta
-function finalizarVenta() {
-
-    if (carrito.length === 0) return
-
-    ventaActiva = false // 🛑 corta lectura
-
-    let metodoPago = document.getElementById("pago").value
-
-    fetch(SCRIPT_URL,{
-        method:"POST",
-        body:JSON.stringify({
-            tipo:"venta",
-            items:carrito,
-            total:total,
-            pago:metodoPago
-        })
-    })
-
-    alert("Venta registrada ✅ Total: $" + total)
-
-    carrito = []
-    total = 0
-    ultimaFila = 0
-    codigosProcesados.clear()
-
-    document.getElementById("lista").innerHTML = ""
-    document.getElementById("total").innerText = "$0"
-    document.getElementById("status").innerText = "📡 Esperando scanner..."
-
-    // ⏱️ reactivar después de limpiar
-    setTimeout(() => {
-        ventaActiva = true
-    }, 1000)
-}
+})
 
 </script>
 

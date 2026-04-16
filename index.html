@@ -63,7 +63,7 @@ body {
 
 <body>
 
-<div class="header">🧾 Caja CHIC PRO FIREBASE v1.2</div>
+<div class="header">🧾 Caja CHIC PRO FIREBASE v1.3</div>
 
 <div class="container">
 
@@ -113,11 +113,19 @@ function getProductoData(codigo) {
 }
 
 // 👂 escucha realtime
+let primeraCarga = true
+
 const inicio = Date.now()
 
 db.collection("scanner")
 .where("timestamp", ">", inicio)
 .onSnapshot(snapshot => {
+
+    // 🚫 ignorar datos iniciales (cache)
+    if (primeraCarga) {
+        primeraCarga = false
+        return
+    }
 
     snapshot.docChanges().forEach(change => {
 

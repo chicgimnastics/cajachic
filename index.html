@@ -63,7 +63,7 @@ body {
 
 <body>
 
-<div class="header">🧾 Caja CHIC PRO FIREBASE v1.3</div>
+<div class="header">🧾 Caja CHIC PRO FIREBASE v1.4</div>
 
 <div class="container">
 
@@ -91,6 +91,9 @@ const firebaseConfig = {
   authDomain: "chic-pos.firebaseapp.com",
   projectId: "chic-pos",
 };
+
+// 🔥 URL GOOGLE SHEETS
+const URL_SHEETS = "https://script.google.com/macros/s/AKfycbzqftjGLBS89N_wp7vf3tPaZyLCljIgyy6DZ6i-snWr7N6rlVeKspAcfWK3JZrfHDyYxg/exec"
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
@@ -227,12 +230,37 @@ function finalizarVenta() {
 
     let pago = document.getElementById("pago").value
 
+    // 🧠 agrupar productos
+    let agrupado = {}
+
+    carrito.forEach(item => {
+        let key = item.producto + "_" + item.codigo
+
+        if (!agrupado[key]) {
+            agrupado[key] = { ...item, cantidad: 1 }
+        } else {
+            agrupado[key].cantidad++
+        }
+    })
+
+    let itemsFinal = Object.values(agrupado)
+
+    // 📤 enviar a Google Sheets
+    fetch(URL_SHEETS, {
+        method: "POST",
+        body: JSON.stringify({
+            items: itemsFinal,
+            total: total,
+            pago: pago
+        })
+    })
+
     alert("Venta registrada ✅ Total: $" + total)
 
     carrito = []
     render()
 
-    // 🧹 LIMPIAR FIREBASE (CLAVE)
+    // 🧹 limpiar Firebase
     db.collection("scanner").get().then(snapshot => {
         snapshot.forEach(doc => doc.ref.delete())
     })

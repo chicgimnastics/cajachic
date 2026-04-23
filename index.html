@@ -63,7 +63,7 @@ body {
 
 <body>
 
-<div class="header">🧾 Caja CHIC PRO FIREBASE v2.0</div>
+<div class="header">🧾 Caja CHIC PRO FIREBASE v2.1</div>
 
 <div class="container">
 
@@ -76,6 +76,26 @@ body {
     <option>Transferencia</option>
     <option>Mercado Pago</option>
 </select>
+    <input 
+    type="text" 
+    id="nombre" 
+    placeholder="Nombre cliente (opcional)"
+    style="width:100%; padding:10px; margin-top:10px;"
+>
+
+<input 
+    type="text" 
+    id="bolsa" 
+    placeholder="N° de bolsa (opcional)"
+    style="width:100%; padding:10px; margin-top:5px;"
+>
+
+<input 
+    type="text" 
+    id="contacto" 
+    placeholder="Contacto (opcional)"
+    style="width:100%; padding:10px; margin-top:5px;"
+>
 
 <!-- 💵 EFECTIVO -->
 <div id="efectivoBox" style="margin-top:10px;">
@@ -268,6 +288,10 @@ document.getElementById("pago").addEventListener("change", calcularVuelto)
 // 💳 finalizar
 function finalizarVenta() {
 
+    let nombre = document.getElementById("nombre").value
+    let bolsa = document.getElementById("bolsa").value
+    let contacto = document.getElementById("contacto").value
+
     if (carrito.length === 0) return
 
     let pago = document.getElementById("pago").value
@@ -291,7 +315,10 @@ function finalizarVenta() {
         body: JSON.stringify({
             items: itemsFinal,
             total: total,
-            pago: pago
+            pago: pago,
+            nombre: nombre,
+            bolsa: bolsa,
+            contacto: contacto
         })
     })
 
@@ -300,9 +327,16 @@ function finalizarVenta() {
     carrito = []
     render()
 
+    // 🔥 RESET EFECTIVO
     document.getElementById("pagaCon").value = ""
     document.getElementById("vuelto").innerText = "Vuelto: $0"
 
+    // 🆕 RESET DATOS CLIENTE (ACA VA)
+    document.getElementById("nombre").value = ""
+    document.getElementById("bolsa").value = ""
+    document.getElementById("contacto").value = ""
+
+    // 🧹 limpiar Firebase
     db.collection("scanner").get().then(snapshot => {
         snapshot.forEach(doc => doc.ref.delete())
     })

@@ -4,27 +4,24 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <script src="https://unpkg.com/@zxing/library@latest"></script>
 
-<!-- Firebase COMPAT -->
+<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 </head>
 
 <body>
 
-<h2>📷 Scanner CHIC FIREBASE V1 </h2>
+<h2>📷 Scanner CHIC FIREBASE v2.1</h2>
 <p id="status">Escaneá un producto</p>
 <video id="video" width="300"></video>
 
 <script>
 
-// 🔥 TU CONFIG
+// 🔥 CONFIG
 const firebaseConfig = {
   apiKey: "AIzaSyCe2I-jg8A3nmVC0fJLxgVlEkjfYzKi3ns",
   authDomain: "chic-pos.firebaseapp.com",
   projectId: "chic-pos",
-  storageBucket: "chic-pos.firebasestorage.app",
-  messagingSenderId: "136052805362",
-  appId: "1:136052805362:web:82ede68bef94a0d497ca6b"
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -33,12 +30,24 @@ const db = firebase.firestore();
 const codeReader = new ZXing.BrowserMultiFormatReader()
 const video = document.getElementById('video')
 
+// 🧠 CONTROL INTELIGENTE
 let lastCode = null
+let lastScanTime = 0
+let scanning = true
 
+// 🔊 beep
 function beep() {
     new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg").play()
 }
 
+// 📳 vibración (iPhone compatible)
+function vibrar() {
+    if (navigator.vibrate) {
+        navigator.vibrate(100)
+    }
+}
+
+// 📤 enviar a Firebase
 function enviar(codigo) {
 
     db.collection("scanner").add({
@@ -47,27 +56,41 @@ function enviar(codigo) {
     })
 
     document.getElementById("status").innerText = "✅ " + codigo
+
     beep()
+    vibrar()
 }
 
+// 📷 scanner
 function startScanner() {
 
     codeReader.decodeFromVideoDevice(null, video, (result) => {
 
-        if (result) {
+        if (!result || !scanning) return
 
-            let codigo = result.text.trim()
+        let codigo = result.text.trim()
+        let now = Date.now()
 
-            if (!codigo || codigo === lastCode) return
+        // 🚫 ignorar inválidos
+        if (!codigo) return
 
-            lastCode = codigo
-
-            enviar(codigo)
-
-            setTimeout(() => {
-                lastCode = null
-            }, 500)
+        // 🚫 evitar duplicado inmediato
+        if (codigo === lastCode && (now - lastScanTime) < 1500) {
+            return
         }
+
+        // 🔒 bloquear lectura rápida
+        scanning = false
+
+        lastCode = codigo
+        lastScanTime = now
+
+        enviar(codigo)
+
+        // ⏱️ reactivar scanner
+        setTimeout(() => {
+            scanning = true
+        }, 600)
     })
 }
 

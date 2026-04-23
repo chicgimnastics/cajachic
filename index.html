@@ -24,7 +24,23 @@ body {
 .container {
     padding: 15px;
 }
+    
+.lista-box {
+    background: white;
+    border-radius: 12px;
+    padding: 12px;
+    min-height: 120px;
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
 
+.empty {
+    text-align: center;
+    color: gray;
+    font-size: 14px;
+}
 .producto {
     background: white;
     border-radius: 12px;
@@ -63,11 +79,13 @@ body {
 
 <body>
 
-<div class="header">🧾 Caja CHIC PRO FIREBASE v2.1</div>
+<div class="header">🧾 Caja CHIC PRO FIREBASE v2.2</div>
 
 <div class="container">
 
-<div id="lista"></div>
+<div class="lista-box">
+    <div id="lista"></div>
+</div>
 
 <div class="total" id="total">$0</div>
 
@@ -201,25 +219,30 @@ function render() {
     let html = ""
     total = 0
 
-    Object.values(agrupado).forEach(item => {
+    if (carrito.length === 0) {
+        html = `<div class="empty">📷 Escaneá productos para comenzar</div>`
+    } else {
 
-        total += item.precio * item.cantidad
+        Object.values(agrupado).forEach(item => {
 
-        html += `
-        <div class="producto">
-            <div>
-                ${item.producto} - ${item.codigo}<br>
-                Cantidad: 
-                <input type="number" value="${item.cantidad}" min="1"
-                onchange="cambiarCantidad('${item.codigo}', this.value)">
-            </div>
-            <div>
-                $${item.precio * item.cantidad}
-                <br>
-                <button class="btn-eliminar" onclick="eliminar('${item.codigo}')">✕</button>
-            </div>
-        </div>`
-    })
+            total += item.precio * item.cantidad
+
+            html += `
+            <div class="producto">
+                <div>
+                    ${item.producto} - ${item.codigo}<br>
+                    Cantidad: 
+                    <input type="number" value="${item.cantidad}" min="1"
+                    onchange="cambiarCantidad('${item.codigo}', this.value)">
+                </div>
+                <div>
+                    $${item.precio * item.cantidad}
+                    <br>
+                    <button class="btn-eliminar" onclick="eliminar('${item.codigo}')">✕</button>
+                </div>
+            </div>`
+        })
+    }
 
     document.getElementById("lista").innerHTML = html
     document.getElementById("total").innerText = "$" + total

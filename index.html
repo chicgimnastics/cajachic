@@ -79,7 +79,7 @@ body {
 
 <body>
 
-<div class="header">🧾 Caja CHIC PRO FIREBASE v2.7</div>
+<div class="header">🧾 Caja CHIC PRO FIREBASE v2.8</div>
 
 <div class="container">
 
@@ -243,16 +243,26 @@ function render() {
         if (stock === undefined) stock = "-"
 
         let alerta = ""
-        if (stock === 1) alerta = "⚠️ Último par"
-        if (stock === 0) alerta = "❌ Sin stock"
+        let color = "#000"
+
+        if (stock === 0) {
+            alerta = "❌ Sin stock"
+            color = "red"
+        } else if (stock === 1) {
+             alerta = "⚠️ Último par"
+             color = "orange"
+         } else if (stock <= 3) {
+    alerta = "⚠️ Poco stock"
+    color = "#cc8400"
+      }
 
         html += `
         <div class="producto">
             <div>
                 ${item.producto} - ${item.codigo}<br>
 
-                Stock: ${stock}
-                ${alerta ? "<br><b style='color:red'>" + alerta + "</b>" : ""}
+               Stock: <span style="color:${color}; font-weight:bold">${stock}</span>
+               ${alerta ? "<br><b style='color:" + color + "'>" + alerta + "</b>" : ""}
 
                 <br>
                 Cantidad: 
@@ -282,11 +292,28 @@ function cambiarCantidad(codigo, cantidad) {
     for (let i = 0; i < cantidad; i++) {
         let data = getProductoData(codigo)
 
-        carrito.push({
-            producto: data.producto,
-            codigo: codigo,
-            precio: data.precio
-        })
+        let stock = stockDB[codigo] ?? 0
+
+// ❌ BLOQUEAR SI NO HAY STOCK
+if (stock === 0) {
+    alert("❌ Sin stock de " + codigo)
+    return
+}
+
+// ⚠️ BLOQUEAR SI YA TENÉS TODO EL STOCK EN CARRITO
+let cantidadEnCarrito = carrito.filter(p => p.codigo === codigo).length
+
+if (cantidadEnCarrito >= stock) {
+    alert("⚠️ Ya agregaste todo el stock disponible")
+    return
+}
+
+// ✅ agregar si hay stock
+carrito.push({
+    producto: data.producto,
+    codigo: codigo,
+    precio: data.precio
+})
     }
 
     render()

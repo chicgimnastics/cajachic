@@ -79,7 +79,7 @@ body {
 
 <body>
 
-<div class="header">🧾 Caja CHIC PRO FIREBASE v2.6</div>
+<div class="header">🧾 Caja CHIC PRO FIREBASE v2.7</div>
 
 <div class="container">
 
@@ -366,6 +366,29 @@ function finalizarVenta() {
             contacto: contacto
         })
     })
+
+    // 🔥 DESCONTAR STOCK EN FIREBASE
+itemsFinal.forEach(item => {
+
+    let ref = db.collection("stock").doc(item.codigo)
+
+    db.runTransaction(async (transaction) => {
+
+        let doc = await transaction.get(ref)
+
+        if (!doc.exists) return
+
+        let stockActual = doc.data().stock
+        let nuevoStock = stockActual - item.cantidad
+
+        if (nuevoStock < 0) nuevoStock = 0
+
+        transaction.update(ref, {
+            stock: nuevoStock
+        })
+    })
+
+})
 
     alert("Venta registrada ✅ Total: $" + total)
 

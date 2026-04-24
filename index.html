@@ -79,7 +79,7 @@ body {
 
 <body>
 
-<div class="header">🧾 Caja CHIC PRO FIREBASE v2.4</div>
+<div class="header">🧾 Caja CHIC PRO FIREBASE v2.5</div>
 
 <div class="container">
 
@@ -154,6 +154,14 @@ const db = firebase.firestore();
 
 let carrito = []
 let total = 0
+let stockDB = {} 
+    db.collection("stock").onSnapshot(snapshot => {
+    snapshot.forEach(doc => {
+        stockDB[doc.id] = doc.data().stock
+    })
+
+    render() // 🔄 actualiza UI cuando cambia stock
+})
 
 // 🧠 producto
 function getProductoData(codigo) {
@@ -232,29 +240,39 @@ function render() {
     let html = ""
     total = 0
 
-    Object.values(agrupado).forEach(item => {
+   Object.values(agrupado).forEach(item => {
 
-        total += item.precio * item.cantidad
+    total += item.precio * item.cantidad
 
-        html += `
-        <div class="producto">
-            <div>
-                ${item.producto} - ${item.codigo}<br>
-                Cantidad: 
-                <input type="number" value="${item.cantidad}" min="1"
-                onchange="cambiarCantidad('${item.codigo}', this.value)">
-            </div>
-            <div>
-                $${item.precio * item.cantidad}
-                <br>
-                <button class="btn-eliminar" onclick="eliminar('${item.codigo}')">✕</button>
-            </div>
-        </div>`
-    })
+    // 🔥 obtener stock desde Firebase
+    let stock = stockDB[item.codigo]
 
-    document.getElementById("lista").innerHTML = html
-    document.getElementById("total").innerText = "$" + total
-}
+    // ⚠️ alertas
+    let alerta = ""
+    if (stock === 1) alerta = "⚠️ Último par"
+    if (stock === 0) alerta = "❌ Sin stock"
+
+    html += `
+    <div class="producto">
+        <div>
+            ${item.producto} - ${item.codigo}<br>
+
+            Stock: ${stock ?? "-"} 
+            ${alerta ? "<br><b style='color:red'>" + alerta + "</b>" : ""}
+
+            <br>
+            Cantidad: 
+            <input type="number" value="${item.cantidad}" min="1"
+            onchange="cambiarCantidad('${item.codigo}', this.value)">
+        </div>
+
+        <div>
+            $${item.precio * item.cantidad}
+            <br>
+            <button class="btn-eliminar" onclick="eliminar('${item.codigo}')">✕</button>
+        </div>
+    </div>`
+})
 
 // 🔢 cantidad
 function cambiarCantidad(codigo, cantidad) {

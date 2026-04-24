@@ -79,7 +79,7 @@ body {
 
 <body>
 
-<div class="header">🧾 Caja CHIC PRO FIREBASE v2.2</div>
+<div class="header">🧾 Caja CHIC PRO FIREBASE v2.3</div>
 
 <div class="container">
 
@@ -204,8 +204,24 @@ db.collection("scanner")
 // 🔁 render
 function render() {
 
-    let agrupado = {}
+    if (carrito.length === 0) {
+        document.getElementById("lista").innerHTML = `
+            <div style="
+                background: white;
+                padding: 30px;
+                border-radius: 12px;
+                text-align: center;
+                color: #777;
+                font-size: 16px;
+            ">
+                📷 Escaneá productos para comenzar
+            </div>
+        `
+        document.getElementById("total").innerText = "$0"
+        return
+    }
 
+    let agrupado = {}
     carrito.forEach(item => {
         let key = item.producto + "_" + item.codigo
 
@@ -219,35 +235,28 @@ function render() {
     let html = ""
     total = 0
 
-    if (carrito.length === 0) {
-        html = `<div class="empty">📷 Escaneá productos para comenzar</div>`
-    } else {
+    Object.values(agrupado).forEach(item => {
 
-        Object.values(agrupado).forEach(item => {
+        total += item.precio * item.cantidad
 
-            total += item.precio * item.cantidad
-
-            html += `
-            <div class="producto">
-                <div>
-                    ${item.producto} - ${item.codigo}<br>
-                    Cantidad: 
-                    <input type="number" value="${item.cantidad}" min="1"
-                    onchange="cambiarCantidad('${item.codigo}', this.value)">
-                </div>
-                <div>
-                    $${item.precio * item.cantidad}
-                    <br>
-                    <button class="btn-eliminar" onclick="eliminar('${item.codigo}')">✕</button>
-                </div>
-            </div>`
-        })
-    }
+        html += `
+        <div class="producto">
+            <div>
+                ${item.producto} - ${item.codigo}<br>
+                Cantidad: 
+                <input type="number" value="${item.cantidad}" min="1"
+                onchange="cambiarCantidad('${item.codigo}', this.value)">
+            </div>
+            <div>
+                $${item.precio * item.cantidad}
+                <br>
+                <button class="btn-eliminar" onclick="eliminar('${item.codigo}')">✕</button>
+            </div>
+        </div>`
+    })
 
     document.getElementById("lista").innerHTML = html
     document.getElementById("total").innerText = "$" + total
-
-    calcularVuelto()
 }
 
 // 🔢 cantidad

@@ -79,7 +79,7 @@ body {
 
 <body>
 
-<div class="header">🧾 Caja CHIC PRO FIREBASE v2.3</div>
+<div class="header">🧾 Caja CHIC PRO FIREBASE v2.4</div>
 
 <div class="container">
 
@@ -177,16 +177,13 @@ db.collection("scanner")
 .where("timestamp", ">", inicio)
 .onSnapshot(snapshot => {
 
-    if (primeraCarga) {
-        primeraCarga = false
-        return
-    }
-
     snapshot.docChanges().forEach(change => {
 
         if (change.type === "added") {
 
             let codigo = change.doc.data().codigo
+
+            if (!codigo) return
 
             let data = getProductoData(codigo)
 
@@ -195,10 +192,10 @@ db.collection("scanner")
                 codigo: codigo,
                 precio: data.precio
             })
-
-            render()
         }
     })
+
+    render()
 })
 
 // 🔁 render

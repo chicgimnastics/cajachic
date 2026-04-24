@@ -79,7 +79,7 @@ body {
 
 <body>
 
-<div class="header">🧾 Caja CHIC PRO FIREBASE v2.5</div>
+<div class="header">🧾 Caja CHIC PRO FIREBASE v2.6</div>
 
 <div class="container">
 
@@ -209,16 +209,10 @@ db.collection("scanner")
 // 🔁 render
 function render() {
 
+    // 🟡 estado vacío (SIEMPRE visible desde el inicio)
     if (carrito.length === 0) {
         document.getElementById("lista").innerHTML = `
-            <div style="
-                background: white;
-                padding: 30px;
-                border-radius: 12px;
-                text-align: center;
-                color: #777;
-                font-size: 16px;
-            ">
+            <div class="empty">
                 📷 Escaneá productos para comenzar
             </div>
         `
@@ -227,6 +221,9 @@ function render() {
     }
 
     let agrupado = {}
+    let html = ""
+    total = 0
+
     carrito.forEach(item => {
         let key = item.producto + "_" + item.codigo
 
@@ -237,42 +234,43 @@ function render() {
         }
     })
 
-    let html = ""
-    total = 0
+    Object.values(agrupado).forEach(item => {
 
-   Object.values(agrupado).forEach(item => {
+        total += item.precio * item.cantidad
 
-    total += item.precio * item.cantidad
+        // 🔥 stock seguro (evita romper render)
+        let stock = stockDB[item.codigo]
+        if (stock === undefined) stock = "-"
 
-    // 🔥 obtener stock desde Firebase
-    let stock = stockDB[item.codigo]
+        let alerta = ""
+        if (stock === 1) alerta = "⚠️ Último par"
+        if (stock === 0) alerta = "❌ Sin stock"
 
-    // ⚠️ alertas
-    let alerta = ""
-    if (stock === 1) alerta = "⚠️ Último par"
-    if (stock === 0) alerta = "❌ Sin stock"
+        html += `
+        <div class="producto">
+            <div>
+                ${item.producto} - ${item.codigo}<br>
 
-    html += `
-    <div class="producto">
-        <div>
-            ${item.producto} - ${item.codigo}<br>
+                Stock: ${stock}
+                ${alerta ? "<br><b style='color:red'>" + alerta + "</b>" : ""}
 
-            Stock: ${stock ?? "-"} 
-            ${alerta ? "<br><b style='color:red'>" + alerta + "</b>" : ""}
+                <br>
+                Cantidad: 
+                <input type="number" value="${item.cantidad}" min="1"
+                onchange="cambiarCantidad('${item.codigo}', this.value)">
+            </div>
 
-            <br>
-            Cantidad: 
-            <input type="number" value="${item.cantidad}" min="1"
-            onchange="cambiarCantidad('${item.codigo}', this.value)">
-        </div>
+            <div>
+                $${item.precio * item.cantidad}
+                <br>
+                <button class="btn-eliminar" onclick="eliminar('${item.codigo}')">✕</button>
+            </div>
+        </div>`
+    })
 
-        <div>
-            $${item.precio * item.cantidad}
-            <br>
-            <button class="btn-eliminar" onclick="eliminar('${item.codigo}')">✕</button>
-        </div>
-    </div>`
-})
+    document.getElementById("lista").innerHTML = html
+    document.getElementById("total").innerText = "$" + total
+}
 
 // 🔢 cantidad
 function cambiarCantidad(codigo, cantidad) {
@@ -388,11 +386,8 @@ function finalizarVenta() {
         snapshot.forEach(doc => doc.ref.delete())
     })
 }
-    // 👇👇👇 PEGALO ACÁ 👇👇👇
-document.addEventListener("DOMContentLoaded", () => {
-    render()
-})
 
+render()
 </script>
 
 </body>

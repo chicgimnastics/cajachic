@@ -79,7 +79,7 @@ body {
 
 <body>
 
-<div class="header">🧾 Caja CHIC PRO FIREBASE v2.8</div>
+<div class="header">🧾 Caja CHIC PRO FIREBASE v2.9</div>
 
 <div class="container">
 
@@ -280,6 +280,18 @@ function render() {
 
     document.getElementById("lista").innerHTML = html
     document.getElementById("total").innerText = "$" + total
+
+    let btn = document.querySelector(".btn-finalizar")
+
+if (hayErrorStock()) {
+    btn.disabled = true
+    btn.style.background = "gray"
+    btn.innerText = "❌ Revisar stock"
+} else {
+    btn.disabled = false
+    btn.style.background = "black"
+    btn.innerText = "Finalizar Venta"
+}
 }
 
 // 🔢 cantidad
@@ -436,7 +448,31 @@ itemsFinal.forEach(item => {
         snapshot.forEach(doc => doc.ref.delete())
     })
 }
+    
+function hayErrorStock() {
 
+    let agrupado = {}
+
+    carrito.forEach(item => {
+        if (!agrupado[item.codigo]) {
+            agrupado[item.codigo] = 1
+        } else {
+            agrupado[item.codigo]++
+        }
+    })
+
+    for (let codigo in agrupado) {
+
+        let cantidad = agrupado[codigo]
+        let stock = stockDB[codigo] ?? 0
+
+        if (stock === 0 || cantidad > stock) {
+            return true
+        }
+    }
+
+    return false
+}
 render()
 </script>
 

@@ -170,7 +170,7 @@ function getProductoData(codigo) {
 }
 
 // 👂 FIREBASE
-let primeraCarga = true
+
 const inicio = Date.now()
 
 db.collection("scanner")
@@ -373,6 +373,10 @@ function finalizarVenta() {
         snapshot.forEach(doc => doc.ref.delete())
     })
 }
+    // 👇👇👇 PEGALO ACÁ 👇👇👇
+document.addEventListener("DOMContentLoaded", () => {
+    render()
+})
 
 </script>
 

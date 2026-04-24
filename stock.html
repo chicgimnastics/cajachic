@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+<style>
+body {
+    font-family: Arial;
+    background: #f5f5f5;
+    padding: 15px;
+}
+
+h2 {
+    text-align: center;
+}
+
+.item {
+    background: white;
+    padding: 12px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+input {
+    width: 60px;
+    padding: 5px;
+    text-align: center;
+}
+</style>
+</head>
+
+<body>
+
+<h2>📦 Stock CHIC v1.0</h2>
+
+<div id="lista"></div>
+
+<script>
+
+// 🔥 CONFIG
+const firebaseConfig = {
+  apiKey: "AIzaSyCe2I-jg8A3nmVC0fJLxgVlEkjfYzKi3ns",
+  authDomain: "chic-pos.firebaseapp.com",
+  projectId: "chic-pos",
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// 👂 escuchar stock
+db.collection("stock").onSnapshot(snapshot => {
+
+    let html = ""
+
+    snapshot.forEach(doc => {
+
+        let codigo = doc.id
+        let stock = doc.data().stock
+
+        html += `
+        <div class="item">
+            <div>${codigo}</div>
+            <input type="number" value="${stock}" 
+                onchange="actualizarStock('${codigo}', this.value)">
+        </div>
+        `
+    })
+
+    document.getElementById("lista").innerHTML = html
+})
+
+// 🔄 actualizar stock
+function actualizarStock(codigo, valor) {
+
+    db.collection("stock").doc(codigo).update({
+        stock: parseInt(valor)
+    })
+}
+
+</script>
+
+</body>
+</html>

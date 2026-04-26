@@ -66,26 +66,46 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
 // 👂 escuchar stock
-db.collection("stock").onSnapshot(snapshot => {
+let stockData = []
+
+    db.collection("stock").onSnapshot(snapshot => {
+
+    stockData = []
+
+    snapshot.forEach(doc => {
+        stockData.push({
+            codigo: doc.id,
+            stock: doc.data().stock
+        })
+    })
+
+    renderStock()
+})
+
+    // Render Stock
+
+    function renderStock() {
+
+    let buscador = document.getElementById("buscador").value.toLowerCase()
 
     let html = ""
 
-    snapshot.forEach(doc => {
+    stockData.forEach(item => {
 
-        let codigo = doc.id
-        let stock = doc.data().stock
+        if (!item.codigo.toLowerCase().includes(buscador)) return
 
         html += `
         <div class="item">
-            <div>${codigo}</div>
-            <input type="number" value="${stock}" 
-                onchange="actualizarStock('${codigo}', this.value)">
+            <div>${item.codigo}</div>
+            <input type="number" value="${item.stock}" 
+                onchange="actualizarStock('${item.codigo}', this.value)">
         </div>
         `
     })
 
     document.getElementById("lista").innerHTML = html
-})
+}
+    
 
 // 🔄 actualizar stock
 function actualizarStock(codigo, valor) {

@@ -37,7 +37,7 @@ input {
 
 <body>
 
-<h2>📦 Stock CHIC v1.5</h2>
+<h2>📦 Stock CHIC v1.6</h2>
       <button onclick="agregarProducto()" style="margin-bottom:10px;">
 ➕ Agregar producto
 </button>
@@ -97,11 +97,17 @@ function renderStock() {
 
         if (!item.codigo.toLowerCase().includes(buscador)) return
 
-        html += `
+        hhtml += `
 <div class="item">
     <div>
         ${item.codigo}<br>
-        Stock: ${item.stock}
+
+        Stock:
+        <input 
+            type="number" 
+            value="${item.stock}" 
+            onchange="actualizarStock('${item.codigo}', this.value)"
+        >
     </div>
 
     <div>
@@ -110,6 +116,7 @@ function renderStock() {
         </button>
     </div>
 </div>
+`
 `
     })
 

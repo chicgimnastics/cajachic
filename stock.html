@@ -37,7 +37,7 @@ input {
 
 <body>
 
-<h2>📦 Stock CHIC v1.1</h2>
+<h2>📦 Stock CHIC v1.2</h2>
 
 <!-- 🔍 BUSCADOR (AHORA SÍ EN EL BODY) -->
 <input 
@@ -49,6 +49,10 @@ input {
 >
 
 <div id="lista"></div>
+
+    <button onclick="agregarProducto()" style="margin-bottom:10px;">
+➕ Agregar producto
+</button>
 
 <script>
 
@@ -109,6 +113,47 @@ function actualizarStock(codigo, valor) {
         stock: parseInt(valor)
     })
 }
+
+// ➕ Sumar Producto    
+
+
+    function agregarProducto() {
+
+    let codigo = prompt("Código del producto (ej: 35, N38, Remera Negro M)")
+
+    if (!codigo) return
+
+    let cantidad = parseInt(prompt("Cantidad a sumar")) || 0
+
+    if (cantidad <= 0) {
+        alert("Cantidad inválida")
+        return
+    }
+
+    let ref = db.collection("stock").doc(codigo)
+
+    ref.get().then(doc => {
+
+        if (doc.exists) {
+
+            let stockActual = doc.data().stock || 0
+
+            ref.update({
+                stock: stockActual + cantidad
+            })
+
+        } else {
+
+            // 🔥 si no existe, lo crea
+            ref.set({
+                stock: cantidad
+            })
+        }
+
+    })
+
+}
+    
 
 </script>
 

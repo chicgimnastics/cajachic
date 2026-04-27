@@ -79,7 +79,7 @@ body {
 
 <body>
 
-<div class="header">🧾 Caja CHIC PRO FIREBASE v2.19</div>
+<div class="header">🧾 Caja CHIC PRO FIREBASE v2.20</div>
 
 <div class="container">
 
@@ -220,13 +220,17 @@ Finalizar Venta
     "Buzo Petroleo M": { precio: 96000 },
     "Buzo Petroleo L": { precio: 96000 },
     "Buzo Petroleo XL": { precio: 96000 },
-    "Buzo Petroleo XXL": { precio: 96000 },
+    "Buzo Petroleo XXL": { precio: 96000 }
 
-       [
+}
+
+
+// 👕 REMERAS
+[
 "Blanco","Negro","Azul","Fucsia","Celeste","Rosa","Rojo",
 "Verde Militar","Verde Lima","Verde Claro","Morado","Lila",
 "Gris Claro","Gris Oscuro","Verde Agua","Rosa Nude","Aqua",
-"Azul Petróleo","Marron"
+"Azul Petroleo","Marron"
 ].forEach(color => {
 
     ["S","M","L","XL","XXL"].forEach(talle => {
@@ -237,8 +241,66 @@ Finalizar Venta
 
 })
 
-} 
-    
+
+// 🔑 LLAVEROS
+[
+"Verde","Rojo","Naranja","Azul","Amarillo","Cuero"
+].forEach(color => {
+    PRODUCTOS[`Llavero ${color}`] = { precio: 10000 }
+})
+
+
+// 👟 ZAPATILLAS 3.0
+["35","36","37","38","39","40","41","42","43"].forEach(talle => {
+    PRODUCTOS[`CHIC 3.0 ${talle}`] = { precio: 100000 }
+})
+
+
+// 👚 TOPS
+["Piel","Blanco","Negro"].forEach(color => {
+
+    ["6","8","10","12","XS","S","M","L"].forEach(talle => {
+
+        PRODUCTOS[`Top ${color} ${talle}`] = { precio: 53500 }
+
+    })
+
+})
+
+
+// 🩰 CANCANES DESCANSO
+["1","2","3"].forEach(talle => {
+    PRODUCTOS[`Cancan Descanso ${talle}`] = { precio: 28500 }
+})
+
+
+// 🩰 CANCANES COMUNES
+["0","1","2","3","4"].forEach(talle => {
+    PRODUCTOS[`Cancan Comun ${talle}`] = { precio: 20000 }
+})
+
+
+// 🧦 MEDIAS COMPETENCIA
+PRODUCTOS["Medias Competencia Blancas"] = { precio: 10000 }
+
+
+// 🖤 CALZAS
+["6","8","10","12","XS","S","M","L"].forEach(talle => {
+    PRODUCTOS[`Calza Corta Negro ${talle}`] = { precio: 53500 }
+    PRODUCTOS[`Calza Larga Negro ${talle}`] = { precio: 63000 }
+})
+
+
+// 🩴 CHANCLAS
+["Blanco","Negro"].forEach(color => {
+
+    ["35/36","37","38","39/40"].forEach(talle => {
+
+        PRODUCTOS[`Chanclas ${color} ${talle}`] = { precio: 55000 }
+
+    })
+
+})    
 // 🔥 CONFIG
 const firebaseConfig = {
   apiKey: "AIzaSyCe2I-jg8A3nmVC0fJLxgVlEkjfYzKi3ns",

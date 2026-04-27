@@ -37,7 +37,7 @@ input {
 
 <body>
 
-<h2>📦 Stock CHIC v1.6</h2>
+<h2>📦 Stock CHIC v1.7</h2>
       <button onclick="agregarProducto()" style="margin-bottom:10px;">
 ➕ Agregar producto
 </button>
@@ -90,34 +90,35 @@ db.collection("stock").onSnapshot(snapshot => {
 function renderStock() {
 
     let buscador = document.getElementById("buscador").value.toLowerCase()
-
     let html = ""
 
     stockData.forEach(item => {
 
         if (!item.codigo.toLowerCase().includes(buscador)) return
 
-        hhtml += `
-<div class="item">
-    <div>
-        ${item.codigo}<br>
+        let stock = item.stock ?? 0
 
-        Stock:
-        <input 
-            type="number" 
-            value="${item.stock}" 
-            onchange="actualizarStock('${item.codigo}', this.value)"
-        >
-    </div>
+        html += `
+        <div class="item">
+            <div>
+                ${item.codigo}<br>
 
-    <div>
-        <button onclick="eliminarProducto('${item.codigo}')" style="background:red; color:white;">
-            🗑️
-        </button>
-    </div>
-</div>
-`
-`
+                Stock:
+                <input 
+                    type="number" 
+                    value="${stock}" 
+                    onchange="actualizarStock('${item.codigo}', this.value)"
+                    style="width:60px;"
+                >
+            </div>
+
+            <div>
+                <button onclick="eliminarProducto('${item.codigo}')" style="background:red; color:white;">
+                    🗑️
+                </button>
+            </div>
+        </div>
+        `
     })
 
     document.getElementById("lista").innerHTML = html

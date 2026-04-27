@@ -37,7 +37,7 @@ input {
 
 <body>
 
-<h2>📦 Stock CHIC v1.7</h2>
+<h2>📦 Stock CHIC v1.8</h2>
       <button onclick="agregarProducto()" style="margin-bottom:10px;">
 ➕ Agregar producto
 </button>
@@ -180,9 +180,7 @@ function actualizarStock(codigo, valor) {
 
     if (!ok) return
 
-    db.collection("stock").doc(codigo).update({
-        stock: 0
-    })
+    db.collection("stock").doc(codigo).delete()
 }
     
 

@@ -11,7 +11,7 @@
 
 <body>
 
-<h2>📷 Scanner CHIC FIREBASE v2.4</h2>
+<h2>📷 Scanner CHIC FIREBASE v2.5</h2>
 <p id="status">Escaneá un producto</p>
 <video id="video" width="300"></video>
 
@@ -44,26 +44,41 @@ function vibrar() {
 }
 
 async function enviar(codigo) {
-    try {
-        document.getElementById("status").innerText = "⏳ Enviando " + codigo
+    document.getElementById("status").innerText = "⏳ Enviando " + codigo
 
-        await db.collection("scanner").add({
-            codigo: codigo,
-            timestamp: Date.now(),
-            scanId: Date.now() + "_" + Math.random().toString(36).substring(2)
-        })
+    const scanId = Date.now() + "_" + Math.random().toString(36).substring(2)
+
+    try {
+        await Promise.race([
+            db.collection("scanner").doc(scanId).set({
+                codigo: codigo,
+                timestamp: Date.now(),
+                scanId: scanId
+            }),
+
+            new Promise((_, reject) => {
+                setTimeout(() => reject(new Error("Firebase lento")), 3500)
+            })
+        ])
 
         document.getElementById("status").innerText = "✅ Escaneado: " + codigo
         beep()
         vibrar()
 
-        setTimeout(() => {
-            document.getElementById("status").innerText = "📷 Listo para escanear otro producto"
-        }, 700)
-
     } catch (error) {
-        console.error("Error Firebase:", error)
-        document.getElementById("status").innerText = "⚠️ No se envió. Intentá escanear de nuevo."
+        console.error("Error o demora Firebase:", error)
+
+        document.getElementById("status").innerText =
+            "⚠️ Firebase lento. Revisá si apareció en caja."
+
+    } finally {
+        setTimeout(() => {
+            document.getElementById("status").innerText =
+                "📷 Listo para escanear otro producto"
+
+            scanning = true
+            lastCode = null
+        }, 700)
     }
 }
 
@@ -82,12 +97,7 @@ function startScanner() {
         scanning = false
         lastCode = codigo
         lastScanTime = now
-await enviar(codigo)
-
-setTimeout(() => {
-    scanning = true
-    lastCode = null
-}, 500)
+enviar(codigo)
     })
 }
 

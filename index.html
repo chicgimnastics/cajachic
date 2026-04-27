@@ -79,7 +79,7 @@ body {
 
 <body>
 
-<div class="header">🧾 Caja CHIC PRO FIREBASE v2.22</div>
+<div class="header">🧾 Caja CHIC PRO FIREBASE v2.23</div>
 
 <div class="container">
 
@@ -304,27 +304,33 @@ function getProductoData(codigo) {
 // 👂 FIREBASE
 
 const inicio = Date.now()
+let scansProcesados = {}
 
-db.collection("scanner")
-.where("timestamp", ">", inicio)
-.onSnapshot(snapshot => {
+db.collection("scanner").onSnapshot(snapshot => {
 
     snapshot.docChanges().forEach(change => {
 
-        if (change.type === "added") {
+        if (change.type !== "added") return
 
-            let codigo = change.doc.data().codigo
+        let doc = change.doc
+        let dataScan = doc.data()
 
-            if (!codigo) return
+        let codigo = dataScan.codigo
+        let timestamp = dataScan.timestamp || 0
 
-            let data = getProductoData(codigo)
+        if (!codigo) return
+        if (timestamp < inicio) return
+        if (scansProcesados[doc.id]) return
 
-            carrito.push({
-                producto: data.producto,
-                codigo: codigo,
-                precio: data.precio
-            })
-        }
+        scansProcesados[doc.id] = true
+
+        let data = getProductoData(codigo)
+
+        carrito.push({
+            producto: data.producto,
+            codigo: codigo,
+            precio: data.precio
+        })
     })
 
     render()

@@ -79,7 +79,7 @@ body {
 
 <body>
 
-<div class="header">🧾 Caja CHIC PRO FIREBASE v2.9</div>
+<div class="header">🧾 Caja CHIC PRO FIREBASE v2.10</div>
 
 <div class="container">
 
@@ -140,6 +140,44 @@ Finalizar Venta
 
 <script>
 
+    const PRODUCTOS = {
+
+    // 👟 ZAPATILLAS
+    "CHIC Niño": {
+        precio: 50000,
+        talles: ["T27","T28","T29","T30","T31","T32"]
+    },
+
+    "CHIC 1.0": {
+        precio: 95000,
+        talles: [
+            "T33","T34","T35","T36","T37","T38","T39","T40","T41","T42","T43"
+        ]
+    },
+
+    "CHIC 2.0": {
+        precio: 110000,
+        talles: [
+            "33","34","35","36","37","38","39","40","41","42","43"
+        ]
+    },
+
+    "CHIC 2.0 Negro": {
+        precio: 95000,
+        talles: [
+            "N33","N34","N35","N36","N37","N38","N39","N40","N41","N42","N43"
+        ]
+    },
+
+    // 🧢 ACCESORIOS (SIN QR POR AHORA)
+    "Bitácora": { precio: 44000 },
+    "Medias": { precio: 13000 },
+    "Chanclas": { precio: 40000 },
+    "Pulseras": { precio: 6000 },
+    "Limpiador": { precio: 6000 }
+}
+
+    
 // 🔥 CONFIG
 const firebaseConfig = {
   apiKey: "AIzaSyCe2I-jg8A3nmVC0fJLxgVlEkjfYzKi3ns",
@@ -166,15 +204,22 @@ let stockDB = {}
 // 🧠 producto
 function getProductoData(codigo) {
 
-    if (codigo.startsWith("N")) return { producto: "CHIC 2.0 Negro", precio: 37000 }
+    for (let nombre in PRODUCTOS) {
 
-    if (codigo.startsWith("T")) {
-        let talle = parseInt(codigo.substring(1))
-        if (talle <= 32) return { producto: "CHIC Niño", precio: 25000 }
-        return { producto: "CHIC 1.0", precio: 30000 }
+        let prod = PRODUCTOS[nombre]
+
+        if (prod.talles && prod.talles.includes(codigo)) {
+            return {
+                producto: nombre,
+                precio: prod.precio
+            }
+        }
     }
 
-    return { producto: "CHIC 2.0", precio: 35000 }
+    return {
+        producto: "Producto desconocido",
+        precio: 0
+    }
 }
 
 // 👂 FIREBASE

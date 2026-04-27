@@ -79,7 +79,7 @@ body {
 
 <body>
 
-<div class="header">🧾 Caja CHIC PRO FIREBASE v2.21</div>
+<div class="header">🧾 Caja CHIC PRO FIREBASE v2.22</div>
 
 <div class="container">
 
@@ -258,9 +258,8 @@ let stockDB = {}
 // 🧠 producto
 function getProductoData(codigo) {
 
-    // 1️⃣ buscar por talle (zapatillas)
+    // 1️⃣ buscar por talle directo (zapatillas)
     for (let nombre in PRODUCTOS) {
-
         let prod = PRODUCTOS[nombre]
 
         if (prod.talles && prod.talles.includes(codigo)) {
@@ -271,7 +270,23 @@ function getProductoData(codigo) {
         }
     }
 
-    // 2️⃣ buscar coincidencia exacta (ej: "Buzo Negro L")
+    // 2️⃣ detectar formato "Producto Talle"
+    let partes = codigo.split(" ")
+    let talle = partes.pop() // último valor
+    let nombreProducto = partes.join(" ")
+
+    if (PRODUCTOS[nombreProducto]) {
+        let prod = PRODUCTOS[nombreProducto]
+
+        if (prod.talles && prod.talles.includes(talle)) {
+            return {
+                producto: nombreProducto,
+                precio: prod.precio
+            }
+        }
+    }
+
+    // 3️⃣ coincidencia exacta (sin talle)
     if (PRODUCTOS[codigo]) {
         return {
             producto: codigo,
@@ -279,7 +294,7 @@ function getProductoData(codigo) {
         }
     }
 
-    // 3️⃣ fallback
+    // 4️⃣ fallback
     return {
         producto: "Producto desconocido",
         precio: 0

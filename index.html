@@ -79,7 +79,7 @@ body {
 
 <body>
 
-<div class="header">🧾 Caja CHIC PRO FIREBASE v2.23</div>
+<div class="header">🧾 Caja CHIC PRO FIREBASE v2.22</div>
 
 <div class="container">
 
@@ -418,32 +418,22 @@ function render() {
 
 // 🔢 cantidad
 function cambiarCantidad(codigo, cantidad) {
-    cantidad = parseInt(cantidad);
-    let stockDisponible = stockDB[codigo] ?? 0;
 
-    if (cantidad > stockDisponible) {
-        alert("⚠️ No hay suficiente stock (Máximo: " + stockDisponible + ")");
-        render(); // Para resetear el input al valor anterior
-        return;
-    }
+    cantidad = parseInt(cantidad)
 
-    // Filtramos para quitar todas las unidades actuales de ese código
-    let otrosProductos = carrito.filter(item => item.codigo !== codigo);
-    
-    // Creamos las nuevas unidades según la cantidad elegida
-    let nuevasUnidades = [];
-    let data = getProductoData(codigo);
+    carrito = carrito.filter(item => item.codigo !== codigo)
+
     for (let i = 0; i < cantidad; i++) {
-        nuevasUnidades.push({
-            producto: data.producto,
-            codigo: codigo,
-            precio: data.precio
-        });
-    }
+        let data = getProductoData(codigo)
 
-    carrito = [...otrosProductos, ...nuevasUnidades];
-    render();
+        let stock = stockDB[codigo] ?? 0
+
+// ❌ BLOQUEAR SI NO HAY STOCK
+if (stock === 0) {
+    alert("❌ Sin stock de " + codigo)
+    return
 }
+
 // ⚠️ BLOQUEAR SI YA TENÉS TODO EL STOCK EN CARRITO
 let cantidadEnCarrito = carrito.filter(p => p.codigo === codigo).length
 
@@ -464,45 +454,16 @@ carrito.push({
 }
 
 // ❌ eliminar
-// --- ESTA ES LA FUNCIÓN QUE CAMBIA ---
 function eliminar(codigo) {
-    // 1. Limpiar el carrito local (elimina todas las unidades de ese código)
-    carrito = carrito.filter(p => p.codigo !== codigo);
 
-    // 2. Borrar de Firebase el documento que originó el escaneo
-    // Esto evita que al recargar o al dispararse el snapshot vuelva a aparecer
-    db.collection("scanner")
-      .where("codigo", "==", codigo)
-      .get()
-      .then(snapshot => {
-          snapshot.forEach(doc => {
-              doc.ref.delete();
-          });
-      })
-      .catch(error => console.error("Error al borrar en Firebase:", error));
+    let index = carrito.findIndex(p => p.codigo === codigo)
 
-    // 3. Actualizar la interfaz
-    render();
+    if (index !== -1) {
+        carrito.splice(index, 1)
+    }
+
+    render()
 }
-    // --- ESTO VA SUELTO EN EL CUERPO DEL SCRIPT ---
-db.collection("scanner")
-.where("timestamp", ">", inicio)
-.onSnapshot(snapshot => {
-    snapshot.docChanges().forEach(change => {
-        if (change.type === "added") {
-            let codigo = change.doc.data().codigo;
-            if (!codigo) return;
-
-            let data = getProductoData(codigo);
-            carrito.push({
-                producto: data.producto,
-                codigo: codigo,
-                precio: data.precio
-            });
-        }
-    });
-    render();
-});
 
 // 💰 vuelto
 function calcularVuelto() {
@@ -639,4 +600,3 @@ render()
 
     </body>
 </html>
-

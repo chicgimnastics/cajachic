@@ -79,7 +79,7 @@ body {
 
 <body>
 
-<div class="header">🧾 Caja CHIC PRO FIREBASE v2.10</div>
+<div class="header">🧾 Caja CHIC PRO FIREBASE v2.11</div>
 
 <div class="container">
 
@@ -169,13 +169,160 @@ Finalizar Venta
         ]
     },
 
-    // 🧢 ACCESORIOS (SIN QR POR AHORA)
+        // 👟 CHIC PRO (2.0)
+    "CHIC PRO 33": { precio: 110000 },
+    "CHIC PRO 34": { precio: 110000 },
+    "CHIC PRO 35": { precio: 110000 },
+    "CHIC PRO 36": { precio: 110000 },
+    "CHIC PRO 37": { precio: 110000 },
+    "CHIC PRO 38": { precio: 110000 },
+
+    // 🧢 ACCESORIOS
     "Bitácora": { precio: 44000 },
-    "Medias": { precio: 13000 },
     "Chanclas": { precio: 40000 },
-    "Pulseras": { precio: 6000 },
-    "Limpiador": { precio: 6000 }
+    "Blanqueador": { precio: 6000 }
 }
+
+    // 🧿 PULSERAS
+    "Pulsera Negra": { precio: 6000 },
+    "Pulsera Blanca": { precio: 6000 },
+
+    // 🎁 REGALO
+    "Gomitas Pelo (Regalo)": { precio: 6000 },
+
+    // 🧦 MEDIAS
+    "Medias Blancas Líneas Negras": { precio: 13000 },
+    "Medias Blancas Azul/Roja": { precio: 13000 },
+    "Medias Negras Líneas Blancas": { precio: 13000 },
+    "Medias Grises Líneas Amarillas": { precio: 13000 },
+
+    // 🛍️ TOTE
+    "Tote Bag": { precio: 8500 },
+
+    // 👕 BUZOS NEGRO
+    "Buzo Negro S": { precio: 96000 },
+    "Buzo Negro M": { precio: 96000 },
+    "Buzo Negro L": { precio: 96000 },
+    "Buzo Negro XL": { precio: 96000 },
+    "Buzo Negro XXL": { precio: 96000 },
+
+    // 👕 BUZOS GRIS
+    "Buzo Gris S": { precio: 96000 },
+    "Buzo Gris M": { precio: 96000 },
+    "Buzo Gris L": { precio: 96000 },
+    "Buzo Gris XL": { precio: 96000 },
+    "Buzo Gris XXL": { precio: 96000 },
+
+    // 👕 BUZOS BLANCO
+    "Buzo Blanco S": { precio: 96000 },
+    "Buzo Blanco M": { precio: 96000 },
+    "Buzo Blanco L": { precio: 96000 },
+    "Buzo Blanco XL": { precio: 96000 },
+    "Buzo Blanco XXL": { precio: 96000 },
+
+    // 👕 BUZOS MARRÓN
+    "Buzo Marrón S": { precio: 96000 },
+    "Buzo Marrón M": { precio: 96000 },
+    "Buzo Marrón L": { precio: 96000 },
+    "Buzo Marrón XL": { precio: 96000 },
+    "Buzo Marrón XXL": { precio: 96000 },
+
+    // 👕 BUZOS VERDE MILITAR
+    "Buzo Verde Militar S": { precio: 96000 },
+    "Buzo Verde Militar M": { precio: 96000 },
+    "Buzo Verde Militar L": { precio: 96000 },
+    "Buzo Verde Militar XL": { precio: 96000 },
+    "Buzo Verde Militar XXL": { precio: 96000 },
+
+    // 👕 BUZOS PETRÓLEO
+    "Buzo Petróleo S": { precio: 96000 },
+    "Buzo Petróleo M": { precio: 96000 },
+    "Buzo Petróleo L": { precio: 96000 },
+    "Buzo Petróleo XL": { precio: 96000 },
+    "Buzo Petróleo XXL": { precio: 96000 }
+}
+
+    // 👕 REMERAS CHIC
+[
+"Blanco","Negro","Azul","Fucsia","Celeste","Rosa","Rojo",
+"Verde Militar","Verde Lima","Verde Claro","Morado","Lila",
+"Gris Claro","Gris Oscuro","Verde Agua","Rosa Nude","Aqua",
+"Azul Petróleo","Marron"
+].forEach(color => {
+
+    ["S","M","L","XL","XXL"].forEach(talle => {
+
+        PRODUCTOS[`Remera ${color} ${talle}`] = { precio: 38500 }
+
+    })
+
+})
+
+
+// 🔑 LLAVEROS
+[
+"Verde","Rojo","Naranja","Azul","Amarillo","Cuero"
+].forEach(color => {
+    PRODUCTOS[`Llavero ${color}`] = { precio: 10000 }
+})
+
+
+// 👟 ZAPATILLAS 3.0
+["35","36","37","38","39","40","41","42","43"].forEach(talle => {
+    PRODUCTOS[`CHIC 3.0 ${talle}`] = { precio: 100000 }
+})
+
+
+// 👚 TOPS
+["Piel","Blanco","Negro"].forEach(color => {
+
+    ["6","8","10","12","XS","S","M","L"].forEach(talle => {
+
+        PRODUCTOS[`Top ${color} ${talle}`] = { precio: 53500 }
+
+    })
+
+})
+
+
+// 🩰 CANCANES DESCANSO
+["1","2","3"].forEach(talle => {
+    PRODUCTOS[`Cancán Descanso ${talle}`] = { precio: 28500 }
+})
+
+
+// 🩰 CANCANES COMUNES
+["0","1","2","3","4"].forEach(talle => {
+    PRODUCTOS[`Cancán Común ${talle}`] = { precio: 20000 }
+})
+
+
+// 🧦 MEDIAS COMPETENCIA
+PRODUCTOS["Medias Competencia Blancas"] = { precio: 10000 }
+
+
+// 🖤 CALZAS CORTAS
+["6","8","10","12","XS","S","M","L"].forEach(talle => {
+    PRODUCTOS[`Calza Corta Negro ${talle}`] = { precio: 53500 }
+})
+
+
+// 🖤 CALZAS LARGAS
+["6","8","10","12","XS","S","M","L"].forEach(talle => {
+    PRODUCTOS[`Calza Larga Negro ${talle}`] = { precio: 63000 }
+})
+
+
+// 🩴 CHANCLAS
+["Blanco","Negro"].forEach(color => {
+
+    ["35/36","37","38","39/40"].forEach(talle => {
+
+        PRODUCTOS[`Chanclas ${color} ${talle}`] = { precio: 55000 }
+
+    })
+
+})
 
     
 // 🔥 CONFIG

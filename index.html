@@ -79,7 +79,7 @@ body {
 
 <body>
 
-<div class="header">🧾 Caja CHIC PRO FIREBASE v2.15</div>
+<div class="header">🧾 Caja CHIC PRO FIREBASE v2.16</div>
 
 <div class="container">
 
@@ -393,7 +393,6 @@ db.collection("scanner")
 // 🔁 render
 function render() {
 
-    // 🟡 estado vacío (SIEMPRE visible desde el inicio)
     if (carrito.length === 0) {
         document.getElementById("lista").innerHTML = `
             <div class="empty">
@@ -422,7 +421,6 @@ function render() {
 
         total += item.precio * item.cantidad
 
-        // 🔥 stock seguro (evita romper render)
         let stock = stockDB[item.codigo]
         if (stock === undefined) stock = "-"
 
@@ -433,12 +431,12 @@ function render() {
             alerta = "❌ Sin stock"
             color = "red"
         } else if (stock === 1) {
-             alerta = "⚠️ Último par"
-             color = "orange"
-         } else if (stock <= 3) {
-    alerta = "⚠️ Poco stock"
-    color = "#cc8400"
-      }
+            alerta = "⚠️ Último par"
+            color = "orange"
+        } else if (stock <= 3) {
+            alerta = "⚠️ Poco stock"
+            color = "#cc8400"
+        }
 
         html += `
         <div class="producto">
@@ -467,15 +465,15 @@ function render() {
 
     let btn = document.querySelector(".btn-finalizar")
 
-if (hayErrorStock()) {
-    btn.disabled = true
-    btn.style.background = "gray"
-    btn.innerText = "❌ Revisar stock"
-} else {
-    btn.disabled = false
-    btn.style.background = "black"
-    btn.innerText = "Finalizar Venta"
-}
+    if (hayErrorStock()) {
+        btn.disabled = true
+        btn.style.background = "gray"
+        btn.innerText = "❌ Revisar stock"
+    } else {
+        btn.disabled = false
+        btn.style.background = "black"
+        btn.innerText = "Finalizar Venta"
+    }
 }
 
 // 🔢 cantidad

@@ -11,7 +11,7 @@
 
 <body>
 
-<h2>📷 Scanner CHIC FIREBASE v2.3</h2>
+<h2>📷 Scanner CHIC FIREBASE v2.4</h2>
 <p id="status">Escaneá un producto</p>
 <video id="video" width="300"></video>
 
@@ -44,27 +44,27 @@ function vibrar() {
 }
 
 async function enviar(codigo) {
-    document.getElementById("status").innerText = "⏳ Enviando " + codigo
+    try {
+        document.getElementById("status").innerText = "⏳ Enviando " + codigo
 
-    const envioFirebase = db.collection("scanner").add({
-        codigo: codigo,
-        timestamp: Date.now(),
-        scanId: Date.now() + "_" + Math.random().toString(36).substring(2)
-    })
+        await db.collection("scanner").add({
+            codigo: codigo,
+            timestamp: Date.now(),
+            scanId: Date.now() + "_" + Math.random().toString(36).substring(2)
+        })
 
-    const timeout = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error("timeout")), 2000)
-    })
+        document.getElementById("status").innerText = "✅ Escaneado: " + codigo
+        beep()
+        vibrar()
 
-    await Promise.race([envioFirebase, timeout])
+        setTimeout(() => {
+            document.getElementById("status").innerText = "📷 Listo para escanear otro producto"
+        }, 700)
 
-    document.getElementById("status").innerText = "✅ Escaneado: " + codigo
-    beep()
-    vibrar()
-
-    setTimeout(() => {
-        document.getElementById("status").innerText = "📷 Listo para escanear otro producto"
-    }, 700)
+    } catch (error) {
+        console.error("Error Firebase:", error)
+        document.getElementById("status").innerText = "⚠️ No se envió. Intentá escanear de nuevo."
+    }
 }
 
 function startScanner() {
@@ -82,11 +82,7 @@ function startScanner() {
         scanning = false
         lastCode = codigo
         lastScanTime = now
-try {
-    await enviar(codigo)
-} catch (error) {
-    document.getElementById("status").innerText = "⚠️ No se envió. Intentá escanear de nuevo."
-}
+await enviar(codigo)
 
 setTimeout(() => {
     scanning = true

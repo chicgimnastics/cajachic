@@ -37,14 +37,12 @@ input {
 
 <body>
 
-<h2>📦 Stock CHIC v1.3</h2>
+<h2>📦 Stock CHIC v1.4</h2>
       <button onclick="agregarProducto()" style="margin-bottom:10px;">
 ➕ Agregar producto
 </button>
 
-    <button onclick="eliminarProducto('${codigo}')" style="background:red; color:white;">
-🗑️
-</button>
+   
 
 <!-- 🔍 BUSCADOR (AHORA SÍ EN EL BODY) -->
 <input 
@@ -52,7 +50,7 @@ input {
     id="buscador" 
     placeholder="🔍 Buscar talle..."
     style="width:100%; padding:10px; margin-bottom:10px;"
-    oninput="renderStock()"
+    oninput="Stock()"
 >
 
 <div id="lista"></div>
@@ -100,12 +98,19 @@ function renderStock() {
         if (!item.codigo.toLowerCase().includes(buscador)) return
 
         html += `
-        <div class="item">
-            <div>${item.codigo}</div>
-            <input type="number" value="${item.stock}" 
-                onchange="actualizarStock('${item.codigo}', this.value)">
-        </div>
-        `
+<div class="producto">
+    <div>
+        ${codigo}<br>
+        Stock: ${stock}
+    </div>
+
+    <div>
+        <button onclick="eliminarProducto('${codigo}')" style="background:red; color:white;">
+            🗑️
+        </button>
+    </div>
+</div>
+`
     })
 
     document.getElementById("lista").innerHTML = html
@@ -163,11 +168,13 @@ function actualizarStock(codigo, valor) {
 
     function eliminarProducto(codigo) {
 
-    let confirmar = confirm("¿Eliminar " + codigo + " del stock?")
+    let ok = confirm("¿Eliminar " + codigo + "?")
 
-    if (!confirmar) return
+    if (!ok) return
 
-    db.collection("stock").doc(codigo).delete()
+    db.collection("stock").doc(codigo).update({
+        stock: 0
+    })
 }
     
 

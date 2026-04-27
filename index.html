@@ -79,7 +79,7 @@ body {
 
 <body>
 
-<div class="header">🧾 Caja CHIC PRO FIREBASE v2.12</div>
+<div class="header">🧾 Caja CHIC PRO FIREBASE v2.13</div>
 
 <div class="container">
 
@@ -140,7 +140,7 @@ Finalizar Venta
 
 <script>
 
-    const PRODUCTOS = {
+   const PRODUCTOS = {
 
     // 👟 ZAPATILLAS
     "CHIC Niño": {
@@ -150,38 +150,24 @@ Finalizar Venta
 
     "CHIC 1.0": {
         precio: 95000,
-        talles: [
-            "T33","T34","T35","T36","T37","T38","T39","T40","T41","T42","T43"
-        ]
+        talles: ["T33","T34","T35","T36","T37","T38","T39","T40","T41","T42","T43"]
     },
 
     "CHIC 2.0": {
         precio: 110000,
-        talles: [
-            "33","34","35","36","37","38","39","40","41","42","43"
-        ]
+        talles: ["33","34","35","36","37","38","39","40","41","42","43"]
     },
 
     "CHIC 2.0 Negro": {
         precio: 95000,
-        talles: [
-            "N33","N34","N35","N36","N37","N38","N39","N40","N41","N42","N43"
-        ]
+        talles: ["N33","N34","N35","N36","N37","N38","N39","N40","N41","N42","N43"]
     },
 
-        // 👟 CHIC PRO (2.0)
-    "CHIC PRO 33": { precio: 110000 },
-    "CHIC PRO 34": { precio: 110000 },
-    "CHIC PRO 35": { precio: 110000 },
-    "CHIC PRO 36": { precio: 110000 },
-    "CHIC PRO 37": { precio: 110000 },
-    "CHIC PRO 38": { precio: 110000 },
-
-    // 🧢 ACCESORIOS
-    "Bitácora": { precio: 44000 },
-    "Chanclas": { precio: 40000 },
-    "Blanqueador": { precio: 6000 }
-
+    // 👟 CHIC PRO
+    "CHIC PRO": {
+        precio: 110000,
+        talles: ["33","34","35","36","37","38"]
+    },
 
     // 🧿 PULSERAS
     "Pulsera Negra": { precio: 6000 },
@@ -199,48 +185,44 @@ Finalizar Venta
     // 🛍️ TOTE
     "Tote Bag": { precio: 8500 },
 
-    // 👕 BUZOS NEGRO
+    // 👕 BUZOS
     "Buzo Negro S": { precio: 96000 },
     "Buzo Negro M": { precio: 96000 },
     "Buzo Negro L": { precio: 96000 },
     "Buzo Negro XL": { precio: 96000 },
     "Buzo Negro XXL": { precio: 96000 },
 
-    // 👕 BUZOS GRIS
     "Buzo Gris S": { precio: 96000 },
     "Buzo Gris M": { precio: 96000 },
     "Buzo Gris L": { precio: 96000 },
     "Buzo Gris XL": { precio: 96000 },
     "Buzo Gris XXL": { precio: 96000 },
 
-    // 👕 BUZOS BLANCO
     "Buzo Blanco S": { precio: 96000 },
     "Buzo Blanco M": { precio: 96000 },
     "Buzo Blanco L": { precio: 96000 },
     "Buzo Blanco XL": { precio: 96000 },
     "Buzo Blanco XXL": { precio: 96000 },
 
-    // 👕 BUZOS MARRÓN
-    "Buzo Marrón S": { precio: 96000 },
-    "Buzo Marrón M": { precio: 96000 },
-    "Buzo Marrón L": { precio: 96000 },
-    "Buzo Marrón XL": { precio: 96000 },
-    "Buzo Marrón XXL": { precio: 96000 },
+    "Buzo Marron S": { precio: 96000 },
+    "Buzo Marron M": { precio: 96000 },
+    "Buzo Marron L": { precio: 96000 },
+    "Buzo Marron XL": { precio: 96000 },
+    "Buzo Marron XXL": { precio: 96000 },
 
-    // 👕 BUZOS VERDE MILITAR
     "Buzo Verde Militar S": { precio: 96000 },
     "Buzo Verde Militar M": { precio: 96000 },
     "Buzo Verde Militar L": { precio: 96000 },
     "Buzo Verde Militar XL": { precio: 96000 },
     "Buzo Verde Militar XXL": { precio: 96000 },
 
-    // 👕 BUZOS PETRÓLEO
-    "Buzo Petróleo S": { precio: 96000 },
-    "Buzo Petróleo M": { precio: 96000 },
-    "Buzo Petróleo L": { precio: 96000 },
-    "Buzo Petróleo XL": { precio: 96000 },
-    "Buzo Petróleo XXL": { precio: 96000 }
-}
+    "Buzo Petroleo S": { precio: 96000 },
+    "Buzo Petroleo M": { precio: 96000 },
+    "Buzo Petroleo L": { precio: 96000 },
+    "Buzo Petroleo XL": { precio: 96000 },
+    "Buzo Petroleo XXL": { precio: 96000 }
+
+} // ✅ SOLO UN CIERRE
 
     // 👕 REMERAS CHIC
 [
@@ -323,7 +305,7 @@ PRODUCTOS["Medias Competencia Blancas"] = { precio: 10000 }
     })
 
 })
-
+    
     
 // 🔥 CONFIG
 const firebaseConfig = {

@@ -79,7 +79,7 @@ body {
 
 <body>
 
-<div class="header">🧾 Caja CHIC PRO FIREBASE v2.23</div>
+<div class="header">🧾 Caja CHIC PRO FIREBASE v2.24</div>
 
 <div class="container">
 
@@ -326,11 +326,19 @@ db.collection("scanner").onSnapshot(snapshot => {
 
         let data = getProductoData(codigo)
 
-        carrito.push({
-            producto: data.producto,
-            codigo: codigo,
-            precio: data.precio
-        })
+       // 🚫 NO agregar productos desconocidos
+       if (data.producto === "Producto desconocido" || data.precio === 0) {
+           console.log("Código ignorado:", codigo)
+          // opcional: borrar ese scan inválido de Firebase
+          doc.ref.delete()
+          return
+         }
+
+carrito.push({
+    producto: data.producto,
+    codigo: codigo,
+    precio: data.precio
+})
     })
 
     render()

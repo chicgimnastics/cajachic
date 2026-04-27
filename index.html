@@ -79,7 +79,7 @@ body {
 
 <body>
 
-<div class="header">🧾 Caja CHIC PRO FIREBASE v2.13</div>
+<div class="header">🧾 Caja CHIC PRO FIREBASE v2.14</div>
 
 <div class="container">
 
@@ -333,6 +333,7 @@ let stockDB = {}
 // 🧠 producto
 function getProductoData(codigo) {
 
+    // 1️⃣ buscar por talle (zapatillas)
     for (let nombre in PRODUCTOS) {
 
         let prod = PRODUCTOS[nombre]
@@ -345,6 +346,15 @@ function getProductoData(codigo) {
         }
     }
 
+    // 2️⃣ buscar coincidencia exacta (ej: "Buzo Negro L")
+    if (PRODUCTOS[codigo]) {
+        return {
+            producto: codigo,
+            precio: PRODUCTOS[codigo].precio
+        }
+    }
+
+    // 3️⃣ fallback
     return {
         producto: "Producto desconocido",
         precio: 0

@@ -79,7 +79,7 @@ body {
 
 <body>
 
-<div class="header">🧾 Caja CHIC PRO FIREBASE v2.17</div>
+<div class="header">🧾 Caja CHIC PRO FIREBASE v2.18</div>
 
 <div class="container">
 
@@ -221,6 +221,21 @@ Finalizar Venta
     "Buzo Petroleo L": { precio: 96000 },
     "Buzo Petroleo XL": { precio: 96000 },
     "Buzo Petroleo XXL": { precio: 96000 }
+
+       [
+"Blanco","Negro","Azul","Fucsia","Celeste","Rosa","Rojo",
+"Verde Militar","Verde Lima","Verde Claro","Morado","Lila",
+"Gris Claro","Gris Oscuro","Verde Agua","Rosa Nude","Aqua",
+"Azul Petróleo","Marron"
+].forEach(color => {
+
+    ["S","M","L","XL","XXL"].forEach(talle => {
+
+        PRODUCTOS[`Remera ${color} ${talle}`] = { precio: 38500 }
+
+    })
+
+})
 
 } 
     

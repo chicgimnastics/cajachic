@@ -11,7 +11,7 @@
 
 <body>
 
-<h2>📷 Scanner CHIC FIREBASE v2.2</h2>
+<h2>📷 Scanner CHIC FIREBASE v2.3</h2>
 <p id="status">Escaneá un producto</p>
 <video id="video" width="300"></video>
 
@@ -46,11 +46,17 @@ function vibrar() {
 async function enviar(codigo) {
     document.getElementById("status").innerText = "⏳ Enviando " + codigo
 
-    await db.collection("scanner").add({
+    const envioFirebase = db.collection("scanner").add({
         codigo: codigo,
         timestamp: Date.now(),
         scanId: Date.now() + "_" + Math.random().toString(36).substring(2)
     })
+
+    const timeout = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error("timeout")), 2000)
+    })
+
+    await Promise.race([envioFirebase, timeout])
 
     document.getElementById("status").innerText = "✅ Escaneado: " + codigo
     beep()
@@ -76,17 +82,16 @@ function startScanner() {
         scanning = false
         lastCode = codigo
         lastScanTime = now
+try {
+    await enviar(codigo)
+} catch (error) {
+    document.getElementById("status").innerText = "⚠️ No se envió. Intentá escanear de nuevo."
+}
 
-        try {
-            await enviar(codigo)
-        } catch (error) {
-            document.getElementById("status").innerText = "❌ Error al enviar. Revisá internet."
-        }
-
-        setTimeout(() => {
-            scanning = true
-            lastCode = null
-        }, 900)
+setTimeout(() => {
+    scanning = true
+    lastCode = null
+}, 500)
     })
 }
 

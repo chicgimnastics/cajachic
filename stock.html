@@ -32,14 +32,47 @@ input {
     padding: 5px;
     text-align: center;
 }
+
+.btn-agregar {
+    width: 100%;
+    padding: 14px;
+    background: black;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-agregar:hover {
+    background: #222;
+    transform: scale(1.02);
+}    
+
+    .btn-eliminar {
+    background: transparent;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 6px 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-eliminar:hover {
+    background: #ff4d4d;
+    color: white;
+    border-color: #ff4d4d;
+}
 </style>
 </head>
 
 <body>
 
-<h2>📦 Stock CHIC v1.8</h2>
-      <button onclick="agregarProducto()" style="margin-bottom:10px;">
-➕ Agregar producto
+<h2>📦 Stock CHIC v1.9</h2>
+     <button class="btn-agregar" onclick="agregarProducto()">
+    ➕ Agregar producto
 </button>
 
    
@@ -113,9 +146,9 @@ function renderStock() {
             </div>
 
             <div>
-                <button onclick="eliminarProducto('${item.codigo}')" style="background:red; color:white;">
-                    🗑️
-                </button>
+                <button class="btn-eliminar" onclick="eliminarProducto('${item.codigo}')">
+    🗑️
+</button>
             </div>
         </div>
         `

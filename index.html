@@ -79,7 +79,7 @@ body {
 
 <body>
 
-<div class="header">🧾 Caja CHIC PRO FIREBASE v2.24</div>
+<div class="header">🧾 Caja CHIC PRO FIREBASE v2.25</div>
 
 <div class="container">
 
@@ -303,7 +303,7 @@ function getProductoData(codigo) {
 
 // 👂 FIREBASE
 
-const inicio = Date.now()
+const inicio = firebase.firestore.Timestamp.now()
 let scansProcesados = {}
 
 db.collection("scanner").onSnapshot(snapshot => {
@@ -319,7 +319,7 @@ db.collection("scanner").onSnapshot(snapshot => {
         let timestamp = dataScan.timestamp || 0
 
         if (!codigo) return
-        if (timestamp < inicio) return
+        if (timestamp && timestamp.toMillis && timestamp.toMillis() < inicio.toMillis()) return
         if (scansProcesados[doc.id]) return
 
         scansProcesados[doc.id] = true
@@ -337,8 +337,12 @@ db.collection("scanner").onSnapshot(snapshot => {
 carrito.push({
     producto: data.producto,
     codigo: codigo,
-    precio: data.precio
+    precio: data.precio,
+    scanId: doc.id
 })
+
+// 🧹 borrar el scan apenas se procesa
+doc.ref.delete()
     })
 
     render()

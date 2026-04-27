@@ -37,7 +37,7 @@ input {
 
 <body>
 
-<h2>📦 Stock CHIC v1.4</h2>
+<h2>📦 Stock CHIC v1.5</h2>
       <button onclick="agregarProducto()" style="margin-bottom:10px;">
 ➕ Agregar producto
 </button>
@@ -50,7 +50,7 @@ input {
     id="buscador" 
     placeholder="🔍 Buscar talle..."
     style="width:100%; padding:10px; margin-bottom:10px;"
-    oninput="Stock()"
+    oninput="renderStock()"
 >
 
 <div id="lista"></div>
@@ -98,14 +98,14 @@ function renderStock() {
         if (!item.codigo.toLowerCase().includes(buscador)) return
 
         html += `
-<div class="producto">
+<div class="item">
     <div>
-        ${codigo}<br>
-        Stock: ${stock}
+        ${item.codigo}<br>
+        Stock: ${item.stock}
     </div>
 
     <div>
-        <button onclick="eliminarProducto('${codigo}')" style="background:red; color:white;">
+        <button onclick="eliminarProducto('${item.codigo}')" style="background:red; color:white;">
             🗑️
         </button>
     </div>

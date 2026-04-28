@@ -131,7 +131,7 @@ body {
 
 <body>
 
-<div class="header">🧾 Caja CHIC PRO FIREBASE v2.35</div>
+<div class="header">🧾 Caja CHIC PRO FIREBASE v2.36</div>
 
 <div class="container">
 
@@ -854,7 +854,7 @@ if (descuento > 0) {
     ${descuentoAplicado > 0 ? `
 <div class="resumen-row resumen-descuento">
     <span>Descuento</span>
-    <b>-$${Math.round(descuentoAplicado)}</b>
+    <b>${descuentoAplicado === 0 ? "$0" : "-$" + Math.round(descuentoAplicado)}</b>
 </div>
 ` : ""}
 

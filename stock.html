@@ -81,11 +81,14 @@ input {
 
 <body>
 
-<h2>📦 Stock CHIC v2.0</h2>
+<h2>📦 Stock CHIC v2.1</h2>
      <button class="btn-agregar" onclick="agregarProducto()">
     ➕ Agregar producto
 </button>
-
+ <button onclick="resetearStock()" 
+style="width:100%; padding:14px; margin-top:10px; background:red; color:white; border:none; border-radius:10px;">
+    ⚠️ Poner TODO el stock en 0
+</button>
    
 
 <!-- 🔍 BUSCADOR (AHORA SÍ EN EL BODY) -->
@@ -225,6 +228,32 @@ function actualizarStock(codigo, valor) {
     if (!ok) return
 
     db.collection("stock").doc(codigo).delete()
+}
+
+    // Resetear producto
+
+    function resetearStock() {
+
+    let confirmar = confirm("⚠️ ¿Seguro que querés poner TODO el stock en 0?")
+
+    if (!confirmar) return
+
+    db.collection("stock").get().then(snapshot => {
+
+        let batch = db.batch()
+
+        snapshot.forEach(doc => {
+            let ref = db.collection("stock").doc(doc.id)
+
+            batch.update(ref, {
+                stock: 0
+            })
+        })
+
+        batch.commit().then(() => {
+            alert("✅ Todo el stock fue puesto en 0")
+        })
+    })
 }
     
 

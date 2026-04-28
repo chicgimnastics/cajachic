@@ -79,7 +79,7 @@ body {
 
 <body>
 
-<div class="header">🧾 Caja CHIC PRO FIREBASE v2.27</div>
+<div class="header">🧾 Caja CHIC PRO FIREBASE v2.28</div>
 
 <div class="container">
 
@@ -638,19 +638,21 @@ render()
 
     let html = ""
 
-    if (descuento > 0) {
-        html = `
-        <div style="font-size:14px; color:gray;">
-            Total: $${total}
-        </div>
-        <div style="color:green; font-weight:bold;">
-            Descuento: -$${Math.round(descuentoAplicado)}
-        </div>
-        <div style="font-size:28px;">
-            $${Math.round(totalFinal)}
-        </div>
-        `
-    } else {
+   if (descuento > 0) {
+    html = `
+    <div style="font-size:14px; color:gray;">
+        Subtotal: $${total}
+    </div>
+
+    <div style="color:green; font-weight:bold; font-size:20px;">
+        Descuento: -$${Math.round(descuentoAplicado)}
+    </div>
+
+    <div style="font-size:30px; font-weight:bold;">
+        Total: $${Math.round(totalFinal)}
+    </div>
+    `
+} else {
         totalFinal = total
         html = `<div>$${total}</div>`
     }

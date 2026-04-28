@@ -81,12 +81,13 @@ input {
 
 <body>
 
-<h2>📦 Stock CHIC v2.1</h2>
+<h2>📦 Stock CHIC v2.2</h2>
      <button class="btn-agregar" onclick="agregarProducto()">
     ➕ Agregar producto
 </button>
  <button onclick="resetearStock()" 
-style="width:100%; padding:14px; margin-top:10px; background:red; color:white; border:none; border-radius:10px;">
+class="form-control"
+style="margin-top:10px; background:red; color:white; font-weight:bold;">
     ⚠️ Poner TODO el stock en 0
 </button>
    
@@ -94,10 +95,10 @@ style="width:100%; padding:14px; margin-top:10px; background:red; color:white; b
 <!-- 🔍 BUSCADOR (AHORA SÍ EN EL BODY) -->
 <input 
     type="text" 
-    id="buscador" 
+    id="buscador"
     placeholder="🔍 Buscar talle..."
-    style="width:100%; padding:10px; margin-bottom:10px;"
-    oninput="renderStock()"
+    class="form-control"
+    style="margin-top:10px;"
 >
 
 <div id="lista"></div>

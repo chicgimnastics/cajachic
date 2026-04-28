@@ -79,7 +79,7 @@ body {
 
 <body>
 
-<div class="header">🧾 Caja CHIC PRO FIREBASE v2.28</div>
+<div class="header">🧾 Caja CHIC PRO FIREBASE v2.29</div>
 
 <div class="container">
 
@@ -93,6 +93,7 @@ body {
     <option>Efectivo</option>
     <option>Transferencia</option>
     <option>Mercado Pago</option>
+    <option>Tarjeta de crédito/débito</option>
 </select>
     <input 
     type="text" 
@@ -627,11 +628,11 @@ render()
 
     let descuento = 0
 
-    if (metodo === "Efectivo") {
-        descuento = 0.15
-    } else if (metodo === "Transferencia") {
-        descuento = 0.10
-    }
+   if (metodo === "Efectivo") {
+    descuento = 0.15
+} else if (metodo === "Transferencia" || metodo === "Mercado Pago") {
+    descuento = 0.10
+}
 
     descuentoAplicado = total * descuento
     totalFinal = total - descuentoAplicado

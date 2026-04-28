@@ -131,7 +131,7 @@ body {
 
 <body>
 
-<div class="header">🧾 Caja CHIC PRO FIREBASE v2.36</div>
+<div class="header">🧾 Caja CHIC PRO FIREBASE v2.37</div>
 
 <div class="container">
 
@@ -550,7 +550,27 @@ function render() {
         </div>
     `
 
-    document.getElementById("total").innerHTML = "$0"
+    document.getElementById("total").innerHTML = `
+        <div class="resumen-row">
+            <span>Subtotal</span>
+            <b>$0</b>
+        </div>
+
+        <div class="resumen-row resumen-descuento">
+            <span>Descuento</span>
+            <b>$0</b>
+        </div>
+
+        <div class="resumen-row resumen-total">
+            <span>Total</span>
+            <span>$0</span>
+        </div>
+    `
+
+    let btn = document.querySelector(".btn-finalizar")
+    btn.disabled = false
+    btn.style.background = "black"
+    btn.innerText = "Finalizar Venta"
 
     calcularVuelto()
 

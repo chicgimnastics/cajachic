@@ -79,7 +79,7 @@ body {
 
 <body>
 
-<div class="header">🧾 Caja CHIC PRO FIREBASE v2.26</div>
+<div class="header">🧾 Caja CHIC PRO FIREBASE v2.27</div>
 
 <div class="container">
 
@@ -244,9 +244,11 @@ const URL_SHEETS = "https://script.google.com/macros/s/AKfycbzqftjGLBS89N_wp7vf3
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
+let carrito = []
+let total = 0
 let totalFinal = 0
 let descuentoAplicado = 0
-let stockDB = {} 
+let stockDB = {}
     db.collection("stock").onSnapshot(snapshot => {
     snapshot.forEach(doc => {
         stockDB[doc.id] = doc.data().stock
@@ -571,7 +573,7 @@ itemsFinal.forEach(item => {
 
 })
 
-    alert("Venta registrada ✅ Total: $" + total)
+    alert("Venta registrada ✅ Total: $" + Math.round(totalFinal))
 
     carrito = []
     render()

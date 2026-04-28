@@ -73,13 +73,64 @@ body {
     border: none;
     margin-top: 10px;
 }
+    .form-control {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px;
+    margin-top: 8px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    font-size: 15px;
+}
+
+.resumen-box {
+    background: white;
+    border-radius: 16px;
+    padding: 16px;
+    margin: 12px 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.resumen-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 15px;
+    color: #555;
+}
+
+.resumen-descuento {
+    color: green;
+    font-weight: bold;
+}
+
+.resumen-total {
+    border-top: 1px solid #ddd;
+    padding-top: 10px;
+    margin-top: 10px;
+    font-size: 28px;
+    font-weight: bold;
+    color: black;
+}
+
+.vuelto-box {
+    background: #f0fff4;
+    border: 1px solid #b7e4c7;
+    color: green;
+    border-radius: 14px;
+    padding: 12px;
+    margin-top: 8px;
+    text-align: center;
+    font-size: 22px;
+    font-weight: bold;
+}
 </style>
 
 </head>
 
 <body>
 
-<div class="header">🧾 Caja CHIC PRO FIREBASE v2.32</div>
+<div class="header">🧾 Caja CHIC PRO FIREBASE v2.33</div>
 
 <div class="container">
 
@@ -113,7 +164,11 @@ body {
     <div id="lista"></div>
 </div>
 
-<div class="total" id="total">$0</div>
+<div class="resumen-box" id="total">
+    <div class="resumen-total" style="border-top:none; margin-top:0; padding-top:0;">
+        Total: $0
+    </div>
+</div>>
 
 <select id="pago" style="width:100%; padding:10px; margin-top:10px;">
     <option>Efectivo</option>
@@ -121,41 +176,27 @@ body {
     <option>Mercado Pago</option>
     <option>Tarjeta de crédito/débito</option>
 </select>
-    <input 
-    type="text" 
-    id="nombre" 
-    placeholder="Nombre cliente (opcional)"
-    style="width:100%; padding:10px; margin-top:10px;"
->
+    
+    <input type="text" id="nombre" class="form-control" placeholder="Nombre cliente (opcional)">
 
-<input 
-    type="text" 
-    id="bolsa" 
-    placeholder="N° de bolsa (opcional)"
-    style="width:100%; padding:10px; margin-top:5px;"
->
+<input type="text" id="bolsa" class="form-control" placeholder="N° de bolsa (opcional)">
 
-<input 
-    type="text" 
-    id="contacto" 
-    placeholder="Contacto (opcional)"
-    style="width:100%; padding:10px; margin-top:5px;"
->
+<input type="text" id="contacto" class="form-control" placeholder="Contacto (opcional)">
 
 <!-- 💵 EFECTIVO -->
 <div id="efectivoBox" style="margin-top:10px;">
     
     <input 
-        type="number" 
-        id="pagaCon" 
-        placeholder="Paga con..." 
-        style="width:100%; padding:10px; margin-bottom:5px;"
-        oninput="calcularVuelto()"
-    >
+    type="number" 
+    id="pagaCon" 
+    class="form-control"
+    placeholder="Paga con..." 
+    oninput="calcularVuelto()"
+>
 
-    <div id="vuelto" style="font-weight:bold; text-align:center;">
-        Vuelto: $0
-    </div>
+<div id="vuelto" class="vuelto-box">
+    Vuelto: $0
+</div>iv>
 
 </div>
 
@@ -788,26 +829,34 @@ render()
 
     let html = ""
 
-   if (descuento > 0) {
+if (descuento > 0) {
     html = `
-    <div style="font-size:14px; color:gray;">
-        Subtotal: $${total}
+    <div class="resumen-row">
+        <span>Subtotal</span>
+        <b>$${total}</b>
     </div>
 
-    <div style="color:green; font-weight:bold; font-size:20px;">
-        Descuento: -$${Math.round(descuentoAplicado)}
+    <div class="resumen-row resumen-descuento">
+        <span>Descuento</span>
+        <b>-$${Math.round(descuentoAplicado)}</b>
     </div>
 
-    <div style="font-size:30px; font-weight:bold;">
-        Total: $${Math.round(totalFinal)}
+    <div class="resumen-row resumen-total">
+        <span>Total</span>
+        <span>$${Math.round(totalFinal)}</span>
     </div>
     `
 } else {
-        totalFinal = total
-        html = `<div>$${total}</div>`
-    }
+    totalFinal = total
+    html = `
+    <div class="resumen-row resumen-total" style="border-top:none; margin-top:0; padding-top:0;">
+        <span>Total</span>
+        <span>$${total}</span>
+    </div>
+    `
+}
 
-    document.getElementById("total").innerHTML = html
+document.getElementById("total").innerHTML = html
 
     calcularVuelto()
 }

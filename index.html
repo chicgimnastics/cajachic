@@ -131,7 +131,7 @@ body {
 
 <body>
 
-<div class="header">🧾 Caja CHIC PRO FIREBASE v2.34</div>
+<div class="header">🧾 Caja CHIC PRO FIREBASE v2.35</div>
 
 <div class="container">
 
@@ -177,15 +177,9 @@ body {
     <option>Mercado Pago</option>
     <option>Tarjeta de crédito/débito</option>
 </select>
-    
-    <input type="text" id="nombre" class="form-control" placeholder="Nombre cliente (opcional)">
 
-<input type="text" id="bolsa" class="form-control" placeholder="N° de bolsa (opcional)">
-
-<input type="text" id="contacto" class="form-control" placeholder="Contacto (opcional)">
-
-<!-- 💵 EFECTIVO -->
-<div id="efectivoBox" style="margin-top:10px;">
+    <!-- 💵 EFECTIVO -->
+<div id="efectivoBox" style="margin-top:10px; display:none;">
     
     <input 
     type="number" 
@@ -200,6 +194,14 @@ body {
 </div>
 
 </div>
+    
+    <input type="text" id="nombre" class="form-control" placeholder="Nombre cliente (opcional)">
+
+<input type="text" id="bolsa" class="form-control" placeholder="N° de bolsa (opcional)">
+
+<input type="text" id="contacto" class="form-control" placeholder="Contacto (opcional)">
+
+
 
 <button class="btn-finalizar" onclick="finalizarVenta()">
 Finalizar Venta
@@ -684,22 +686,34 @@ function calcularVuelto() {
     let box = document.getElementById("efectivoBox")
 
     if (metodo === "Efectivo") {
+
         box.style.display = "block"
 
         let paga = parseFloat(document.getElementById("pagaCon").value) || 0
         let vuelto = paga - totalFinal
 
+        if (paga === 0) {
+            document.getElementById("vuelto").innerText = "Ingresá monto"
+            return
+        }
+
         if (vuelto < 0) {
             document.getElementById("vuelto").innerText = "Faltan $" + Math.abs(vuelto)
+        } else if (vuelto === 0) {
+            document.getElementById("vuelto").innerText = "Pago exacto ✔️"
         } else {
             document.getElementById("vuelto").innerText = "Vuelto: $" + vuelto
         }
 
     } else {
+
         box.style.display = "none"
+
+        // 🔥 reset visual cuando cambia método
+        document.getElementById("pagaCon").value = ""
+        document.getElementById("vuelto").innerText = "Vuelto: $0"
     }
 }
-
 // detectar cambio pago
 document.getElementById("pago").addEventListener("change", () => {
     calcularTotalFinal()

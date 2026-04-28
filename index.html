@@ -79,9 +79,35 @@ body {
 
 <body>
 
-<div class="header">🧾 Caja CHIC PRO FIREBASE v2.29</div>
+<div class="header">🧾 Caja CHIC PRO FIREBASE v2.30</div>
 
 <div class="container">
+
+    <div style="background:white; border-radius:12px; padding:12px; margin-bottom:10px;">
+    <b>Agregar producto manualmente</b>
+
+    <input 
+        type="text" 
+        id="buscadorManual" 
+        placeholder="Ej: CHIC 2.0 36, Remera Negra M, Tote Bag"
+        style="width:100%; padding:10px; margin-top:8px;"
+        oninput="buscarProductoManual()"
+    >
+
+    <select 
+        id="resultadoManual" 
+        style="width:100%; padding:10px; margin-top:8px;"
+    >
+        <option value="">Buscar producto...</option>
+    </select>
+
+    <button 
+        onclick="agregarManual()" 
+        style="width:100%; padding:12px; margin-top:8px; background:black; color:white; border:none; border-radius:10px;"
+    >
+        Agregar manualmente
+    </button>
+</div>
 
 <div class="lista-box">
     <div id="lista"></div>
@@ -350,7 +376,97 @@ doc.ref.delete()
 
     render()
 })
+function generarListaManual() {
+    let lista = []
 
+    for (let nombre in PRODUCTOS) {
+        let prod = PRODUCTOS[nombre]
+
+        if (prod.talles) {
+            prod.talles.forEach(talle => {
+                lista.push({
+                    texto: nombre + " " + talle,
+                    codigo: nombre + " " + talle,
+                    producto: nombre,
+                    precio: prod.precio
+                })
+            })
+        } else {
+            lista.push({
+                texto: nombre,
+                codigo: nombre,
+                producto: nombre,
+                precio: prod.precio
+            })
+        }
+    }
+
+    return lista
+}
+
+function buscarProductoManual() {
+    let texto = document.getElementById("buscadorManual").value.toLowerCase().trim()
+    let select = document.getElementById("resultadoManual")
+
+    select.innerHTML = `<option value="">Buscar producto...</option>`
+
+    if (texto.length < 2) return
+
+    let lista = generarListaManual()
+
+    let resultados = lista.filter(item => 
+        item.texto.toLowerCase().includes(texto)
+    )
+
+    resultados.slice(0, 30).forEach(item => {
+        let option = document.createElement("option")
+        option.value = item.codigo
+        option.textContent = item.texto + " - $" + item.precio
+        select.appendChild(option)
+    })
+}
+
+function agregarManual() {
+    let codigo = document.getElementById("resultadoManual").value
+
+    if (!codigo) {
+        alert("Seleccioná un producto primero")
+        return
+    }
+
+    let data = getProductoData(codigo)
+
+    if (data.producto === "Producto desconocido" || data.precio === 0) {
+        alert("Producto no encontrado")
+        return
+    }
+
+    let stock = stockDB[codigo] ?? 0
+    let cantidadEnCarrito = carrito.filter(p => p.codigo === codigo).length
+
+    if (stock === 0) {
+        alert("❌ Sin stock de " + codigo)
+        return
+    }
+
+    if (cantidadEnCarrito >= stock) {
+        alert("⚠️ Ya agregaste todo el stock disponible")
+        return
+    }
+
+    carrito.push({
+        producto: data.producto,
+        codigo: codigo,
+        precio: data.precio,
+        manual: true
+    })
+
+    document.getElementById("buscadorManual").value = ""
+    document.getElementById("resultadoManual").innerHTML = `<option value="">Buscar producto...</option>`
+
+    render()
+}
+    
 // 🔁 render
 function render() {
 

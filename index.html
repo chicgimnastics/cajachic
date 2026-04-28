@@ -851,10 +851,12 @@ if (descuento > 0) {
         <b>$${total}</b>
     </div>
 
-    <div class="resumen-row resumen-descuento">
-        <span>Descuento</span>
-        <b>${descuentoAplicado > 0 ? "-$" + Math.round(descuentoAplicado) : "$0"}</b>
-    </div>
+    ${descuentoAplicado > 0 ? `
+<div class="resumen-row resumen-descuento">
+    <span>Descuento</span>
+    <b>-$${Math.round(descuentoAplicado)}</b>
+</div>
+` : ""}
 
     <div class="resumen-row resumen-total">
         <span>Total</span>

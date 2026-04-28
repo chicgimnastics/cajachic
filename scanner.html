@@ -4,20 +4,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <script src="https://unpkg.com/@zxing/library@latest"></script>
 
-<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 </head>
 
 <body>
 
-<h2>📷 Scanner CHIC FIREBASE v2.5</h2>
-<p id="status">Escaneá un producto</p>
+<h2>📷 Scanner CHIC FIREBASE v2.6</h2>
+<p id="status">📷 Escaneá un producto</p>
 <video id="video" width="300"></video>
 
 <script>
-
-// 🔥 CONFIG
 const firebaseConfig = {
   apiKey: "AIzaSyCe2I-jg8A3nmVC0fJLxgVlEkjfYzKi3ns",
   authDomain: "chic-pos.firebaseapp.com",
@@ -28,81 +25,75 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
 const codeReader = new ZXing.BrowserMultiFormatReader()
-const video = document.getElementById('video')
+const video = document.getElementById("video")
+const status = document.getElementById("status")
 
-// 🧠 CONTROL INTELIGENTE
 let lastCode = null
 let lastScanTime = 0
-let scanning = true
+let bloqueadoHasta = 0
+
+const beepAudio = new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg")
 
 function beep() {
-    new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg").play()
+    beepAudio.currentTime = 0
+    beepAudio.play().catch(() => {})
 }
 
 function vibrar() {
-    if (navigator.vibrate) navigator.vibrate(100)
+    if (navigator.vibrate) navigator.vibrate(80)
 }
 
-async function enviar(codigo) {
-    document.getElementById("status").innerText = "⏳ Enviando " + codigo
-
+function enviar(codigo) {
     const scanId = Date.now() + "_" + Math.random().toString(36).substring(2)
 
-    try {
-        await Promise.race([
-            db.collection("scanner").doc(scanId).set({
-                codigo: codigo,
-                timestamp: Date.now(),
-                scanId: scanId
-            }),
+    status.innerText = "✅ Leído: " + codigo
+    beep()
+    vibrar()
 
-            new Promise((_, reject) => {
-                setTimeout(() => reject(new Error("Firebase lento")), 3500)
-            })
-        ])
+    // 🔥 Enviar a Firebase SIN trabar el scanner
+    db.collection("scanner").doc(scanId).set({
+        codigo: codigo,
+        timestamp: Date.now(),
+        scanId: scanId
+    })
+    .then(() => {
+        status.innerText = "✅ Enviado: " + codigo
 
-        document.getElementById("status").innerText = "✅ Escaneado: " + codigo
-        beep()
-        vibrar()
-
-    } catch (error) {
-        console.error("Error o demora Firebase:", error)
-
-        document.getElementById("status").innerText =
-            "⚠️ Firebase lento. Revisá si apareció en caja."
-
-    } finally {
         setTimeout(() => {
-            document.getElementById("status").innerText =
-                "📷 Listo para escanear otro producto"
-
-            scanning = true
-            lastCode = null
-        }, 700)
-    }
+            status.innerText = "📷 Listo para escanear otro producto"
+        }, 500)
+    })
+    .catch(error => {
+        console.error("Error Firebase:", error)
+        status.innerText = "⚠️ Error enviando. Escaneá de nuevo."
+    })
 }
 
 function startScanner() {
-    codeReader.decodeFromVideoDevice(null, video, async (result) => {
+    codeReader.decodeFromVideoDevice(null, video, (result) => {
 
-        if (!result || !scanning) return
+        if (!result) return
 
-        let codigo = result.text.trim()
-        let now = Date.now()
+        const codigo = result.text.trim()
+        const now = Date.now()
 
         if (!codigo) return
 
-        if (codigo === lastCode && (now - lastScanTime) < 1200) return
+        // evita doble lectura inmediata
+        if (now < bloqueadoHasta) return
 
-        scanning = false
+        // evita repetir el mismo QR muy rápido
+        if (codigo === lastCode && (now - lastScanTime) < 1500) return
+
         lastCode = codigo
         lastScanTime = now
-enviar(codigo)
+        bloqueadoHasta = now + 700
+
+        enviar(codigo)
     })
 }
 
 startScanner()
-
 </script>
 
 </body>

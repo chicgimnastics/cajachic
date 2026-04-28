@@ -79,7 +79,7 @@ body {
 
 <body>
 
-<div class="header">🧾 Caja CHIC PRO FIREBASE v2.31</div>
+<div class="header">🧾 Caja CHIC PRO FIREBASE v2.32</div>
 
 <div class="container">
 
@@ -495,14 +495,23 @@ function agregarManual() {
 function render() {
 
     if (carrito.length === 0) {
-        document.getElementById("lista").innerHTML = `
-            <div class="empty">
-                📷 Escaneá productos para comenzar
-            </div>
-        `
-        document.getElementById("total").innerText = "$0"
-        return
-    }
+
+    total = 0
+    totalFinal = 0
+    descuentoAplicado = 0
+
+    document.getElementById("lista").innerHTML = `
+        <div class="empty">
+            📷 Escaneá productos para comenzar
+        </div>
+    `
+
+    document.getElementById("total").innerHTML = "$0"
+
+    calcularVuelto()
+
+    return
+}
 
     let agrupado = {}
     let html = ""

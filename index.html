@@ -79,7 +79,7 @@ body {
 
 <body>
 
-<div class="header">🧾 Caja CHIC PRO FIREBASE v2.30</div>
+<div class="header">🧾 Caja CHIC PRO FIREBASE v2.31</div>
 
 <div class="container">
 
@@ -384,9 +384,32 @@ function generarListaManual() {
 
         if (prod.talles) {
             prod.talles.forEach(talle => {
+
+                let codigoStock = nombre + " " + talle
+
+                // 👟 Zapatillas que en Firebase están solo por talle
+                if (nombre === "CHIC Niño") {
+                    codigoStock = talle
+                }
+
+                if (nombre === "CHIC 1.0") {
+                    codigoStock = talle
+                }
+
+                if (nombre === "CHIC 2.0") {
+                    codigoStock = talle
+                }
+
+                if (nombre === "CHIC 2.0 Negro") {
+                    codigoStock = talle
+                }
+
+                // CHIC PRO y CHIC 3.0 quedan con nombre + talle
+                // Ej: CHIC PRO 33 / CHIC 3.0 35
+
                 lista.push({
                     texto: nombre + " " + talle,
-                    codigo: nombre + " " + talle,
+                    codigo: codigoStock,
                     producto: nombre,
                     precio: prod.precio
                 })
@@ -420,26 +443,27 @@ function buscarProductoManual() {
 
     resultados.slice(0, 30).forEach(item => {
         let option = document.createElement("option")
-        option.value = item.codigo
-        option.textContent = item.texto + " - $" + item.precio
-        select.appendChild(option)
+       option.value = item.codigo
+option.textContent = item.texto + " - $" + item.precio
+option.setAttribute("data-producto", item.producto)
+option.setAttribute("data-precio", item.precio)
+select.appendChild(option)
     })
 }
 
 function agregarManual() {
-    let codigo = document.getElementById("resultadoManual").value
+    let select = document.getElementById("resultadoManual")
+    let codigo = select.value
 
     if (!codigo) {
         alert("Seleccioná un producto primero")
         return
     }
 
-    let data = getProductoData(codigo)
+    let selectedOption = select.options[select.selectedIndex]
 
-    if (data.producto === "Producto desconocido" || data.precio === 0) {
-        alert("Producto no encontrado")
-        return
-    }
+    let producto = selectedOption.getAttribute("data-producto")
+    let precio = parseFloat(selectedOption.getAttribute("data-precio"))
 
     let stock = stockDB[codigo] ?? 0
     let cantidadEnCarrito = carrito.filter(p => p.codigo === codigo).length
@@ -455,9 +479,9 @@ function agregarManual() {
     }
 
     carrito.push({
-        producto: data.producto,
+        producto: producto,
         codigo: codigo,
-        precio: data.precio,
+        precio: precio,
         manual: true
     })
 

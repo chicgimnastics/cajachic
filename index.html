@@ -131,7 +131,7 @@ body {
 
 <body>
 
-<div class="header">🧾 Caja CHIC PRO FIREBASE v2.39</div>
+<div class="header">🧾 Caja CHIC PRO FIREBASE v2.40</div>
 
 <div class="container">
 
@@ -237,6 +237,18 @@ Finalizar Venta
         precio: 100000,
         talles: ["35", "36", "37", "38", "39", "40", "41", "42", "43"]
     },
+           "Outlet - Niñx 1.0": {
+        precio: 47000,
+        talles: ["27", "28", "29", "30", "31", "32"]
+    },
+    "Outlet - 1.0": {
+        precio: 50000,
+        talles: ["33", "34", "35", "36", "37", "38", "39", "40", "41", "42", "43"]
+    },
+    "Outlet - 2.0": {
+        precio: 56000,
+        talles: ["33", "34", "35", "36", "37", "38", "39", "40", "41", "42", "43"]
+    },
 
     // 🧿 ACCESORIOS Y OTROS (Sin talles)
     "Pulsera Negra": { precio: 6000 },
@@ -244,6 +256,7 @@ Finalizar Venta
     "Gomitas Pelo (Regalo)": { precio: 6000 },
     "Tote Bag": { precio: 8500 },
     "Medias Competencia Blancas": { precio: 10000 },
+    "Soquetes": { precio: 9900 },
 
     // 🧦 MEDIAS CON DISEÑO
     "Medias Blancas Líneas Negras": { precio: 13000 },
@@ -260,9 +273,17 @@ Finalizar Venta
 
 // 👕 BUZOS (Agrupados por color, con array de talles)
 ["Negro", "Gris", "Blanco", "Marron", "Verde Militar", "Petroleo"].forEach(color => {
+
+    let talles = ["S", "M", "L", "XL", "XXL"]
+
+    // 🔥 Solo para Buzo Negro agregamos 4 y 6
+    if (color === "Negro") {
+        talles = ["4", "6", "S", "M", "L", "XL", "XXL"]
+    }
+
     PRODUCTOS[`Buzo ${color}`] = {
         precio: 96000,
-        talles: ["S", "M", "L", "XL", "XXL"]
+        talles: talles
     };
 });
 
@@ -273,9 +294,17 @@ Finalizar Venta
     "Gris Claro", "Gris Oscuro", "Verde Agua", "Rosa Nude", "Aqua",
     "Azul Petroleo", "Marron"
 ].forEach(color => {
+
+    let talles = ["S", "M", "L", "XL", "XXL"]
+
+    // 🔥 Solo Remera Negro tiene más talles
+    if (color === "Negro") {
+        talles = ["6", "8", "10", "12", "14", "16", "XS", "S", "M", "L", "XL", "XXL"]
+    }
+
     PRODUCTOS[`Remera ${color}`] = {
         precio: 38500,
-        talles: ["S", "M", "L", "XL", "XXL"]
+        talles: talles
     };
 });
 

@@ -131,7 +131,7 @@ body {
 
 <body>
 
-<div class="header">🧾 Caja CHIC PRO FIREBASE v2.37</div>
+<div class="header">🧾 Caja CHIC PRO FIREBASE v2.38</div>
 
 <div class="container">
 
@@ -423,6 +423,7 @@ doc.ref.delete()
 function generarListaManual() {
     let lista = []
 
+    // 1️⃣ Productos definidos en PRODUCTOS
     for (let nombre in PRODUCTOS) {
         let prod = PRODUCTOS[nombre]
 
@@ -431,25 +432,10 @@ function generarListaManual() {
 
                 let codigoStock = nombre + " " + talle
 
-                // 👟 Zapatillas que en Firebase están solo por talle
-                if (nombre === "CHIC Niño") {
-                    codigoStock = talle
-                }
-
-                if (nombre === "CHIC 1.0") {
-                    codigoStock = talle
-                }
-
-                if (nombre === "CHIC 2.0") {
-                    codigoStock = talle
-                }
-
-                if (nombre === "CHIC 2.0 Negro") {
-                    codigoStock = talle
-                }
-
-                // CHIC PRO y CHIC 3.0 quedan con nombre + talle
-                // Ej: CHIC PRO 33 / CHIC 3.0 35
+                if (nombre === "CHIC Niño") codigoStock = talle
+                if (nombre === "CHIC 1.0") codigoStock = talle
+                if (nombre === "CHIC 2.0") codigoStock = talle
+                if (nombre === "CHIC 2.0 Negro") codigoStock = talle
 
                 lista.push({
                     texto: nombre + " " + talle,
@@ -464,6 +450,21 @@ function generarListaManual() {
                 codigo: nombre,
                 producto: nombre,
                 precio: prod.precio
+            })
+        }
+    }
+
+    // 2️⃣ Productos nuevos que existen en Firebase stock
+    for (let codigo in stockDB) {
+
+        let yaExiste = lista.some(item => item.codigo === codigo)
+
+        if (!yaExiste) {
+            lista.push({
+                texto: codigo,
+                codigo: codigo,
+                producto: codigo,
+                precio: 0
             })
         }
     }
@@ -507,7 +508,16 @@ function agregarManual() {
     let selectedOption = select.options[select.selectedIndex]
 
     let producto = selectedOption.getAttribute("data-producto")
-    let precio = parseFloat(selectedOption.getAttribute("data-precio"))
+    let precio = parseFloat(selectedOption.getAttribute("data-precio")) || 0
+
+    if (precio === 0) {
+        precio = parseFloat(prompt("Este producto no tiene precio cargado. Ingresá el precio:")) || 0
+    }
+
+    if (precio <= 0) {
+        alert("Precio inválido")
+        return
+    }
 
     let stock = stockDB[codigo] ?? 0
     let cantidadEnCarrito = carrito.filter(p => p.codigo === codigo).length

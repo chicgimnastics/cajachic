@@ -131,7 +131,7 @@ body {
 
 <body>
 
-<div class="header">🧾 Caja CHIC PRO FIREBASE v2.38</div>
+<div class="header">🧾 Caja CHIC PRO FIREBASE v2.39</div>
 
 <div class="container">
 
@@ -320,6 +320,9 @@ let total = 0
 let totalFinal = 0
 let descuentoAplicado = 0
 let stockDB = {}
+function formatoPesos(numero) {
+    return Math.round(numero).toLocaleString("es-AR")
+}    
     db.collection("stock").onSnapshot(snapshot => {
     snapshot.forEach(doc => {
         stockDB[doc.id] = doc.data().stock
@@ -637,7 +640,7 @@ function render() {
             </div>
 
             <div>
-                $${item.precio * item.cantidad}
+                $${formatoPesos(item.precio * item.cantidad)}
                 <br>
                 <button class="btn-eliminar" onclick="eliminar('${item.codigo}')">✕</button>
             </div>
@@ -728,11 +731,11 @@ function calcularVuelto() {
         }
 
         if (vuelto < 0) {
-            document.getElementById("vuelto").innerText = "Faltan $" + Math.abs(vuelto)
+            document.getElementById("vuelto").innerText = "Faltan $" + formatoPesos(Math.abs(vuelto))
         } else if (vuelto === 0) {
             document.getElementById("vuelto").innerText = "Pago exacto ✔️"
         } else {
-            document.getElementById("vuelto").innerText = "Vuelto: $" + vuelto
+            document.getElementById("vuelto").innerText = "Vuelto: $" + formatoPesos(vuelto)
         }
 
     } else {
@@ -809,7 +812,7 @@ itemsFinal.forEach(item => {
 
 })
 
-    alert("Venta registrada ✅ Total: $" + Math.round(totalFinal))
+    alert("Venta registrada ✅ Total: $" + formatoPesos(totalFinal))
 
     carrito = []
     render()
@@ -878,19 +881,19 @@ if (descuento > 0) {
     html = `
     <div class="resumen-row">
         <span>Subtotal</span>
-        <b>$${total}</b>
+        <b>$${formatoPesos(total)}</b>
     </div>
 
     ${descuentoAplicado > 0 ? `
 <div class="resumen-row resumen-descuento">
     <span>Descuento</span>
-    <b>${descuentoAplicado === 0 ? "$0" : "-$" + Math.round(descuentoAplicado)}</b>
+    <b>${descuentoAplicado === 0 ? "$0" : "-$" + formatoPesos(descuentoAplicado)}</b>
 </div>
 ` : ""}
 
     <div class="resumen-row resumen-total">
         <span>Total</span>
-        <span>$${Math.round(totalFinal)}</span>
+        <span>$${formatoPesos(totalFinal)}</span>
     </div>
     `
 } else {

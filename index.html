@@ -131,7 +131,7 @@ body {
 
 <body>
 
-<div class="header">🧾 Caja CHIC PRO FIREBASE v2.43</div>
+<div class="header">🧾 Caja CHIC PRO FIREBASE v2.44</div>
 
 <div class="container">
 
@@ -170,6 +170,16 @@ body {
         Total: $0
     </div>
 </div>
+
+    <input 
+    type="number"
+    id="promoInput"
+    class="form-control"
+    placeholder="Promo % solo productos seleccionados"
+    min="0"
+    max="100"
+    oninput="calcularTotalFinal()"
+/>
 
 <select id="pago" style="width:100%; padding:10px; margin-top:10px;">
     <option>Efectivo</option>
@@ -790,6 +800,7 @@ function finalizarVenta() {
     let nombre = document.getElementById("nombre").value
     let bolsa = document.getElementById("bolsa").value
     let contacto = document.getElementById("contacto").value
+    document.getElementById("promoInput").value = ""
 
     if (carrito.length === 0) return
 
@@ -890,55 +901,72 @@ function hayErrorStock() {
 }
 render()
 
+    // Calcular Promo
+
+    function tienePromo(item) {
+    return (
+        item.producto.startsWith("Buzo") ||
+        item.producto.startsWith("Remera") ||
+        item.producto === "Medias Competencia Blancas" ||
+        item.producto.startsWith("Medias Blancas") ||
+        item.producto === "CHIC 1.0" ||
+        item.producto === "CHIC 2.0 Negro"
+    )
+}
+
     // Calculae Total Final
 
     function calcularTotalFinal() {
 
     let metodo = document.getElementById("pago").value
 
-    let descuento = 0
+    let promoPorcentaje = parseFloat(document.getElementById("promoInput")?.value) || 0
+    let promoDecimal = promoPorcentaje / 100
 
-   if (metodo === "Efectivo") {
-    descuento = 0.15
-} else if (metodo === "Transferencia" || metodo === "Mercado Pago") {
-    descuento = 0.10
-}
+    let descuentoPagoPorcentaje = 0
 
-    descuentoAplicado = total * descuento
-    totalFinal = total - descuentoAplicado
+    if (metodo === "Efectivo") {
+        descuentoPagoPorcentaje = 0.15
+    } else if (metodo === "Transferencia" || metodo === "Mercado Pago") {
+        descuentoPagoPorcentaje = 0.10
+    }
 
-    let html = ""
+    let descuentoPromo = 0
 
-if (descuento > 0) {
-    html = `
-    <div class="resumen-row">
-        <span>Subtotal</span>
-        <b>$${formatoPesos(total)}</b>
-    </div>
+    carrito.forEach(item => {
+        if (tienePromo(item) && promoDecimal > 0) {
+            descuentoPromo += item.precio * promoDecimal
+        }
+    })
 
-    ${descuentoAplicado > 0 ? `
-<div class="resumen-row resumen-descuento">
-    <span>Descuento</span>
-    <b>${descuentoAplicado === 0 ? "$0" : "-$" + formatoPesos(descuentoAplicado)}</b>
-</div>
-` : ""}
+    let subtotalConPromo = total - descuentoPromo
 
-    <div class="resumen-row resumen-total">
-        <span>Total</span>
-        <span>$${formatoPesos(totalFinal)}</span>
-    </div>
+    descuentoAplicado = subtotalConPromo * descuentoPagoPorcentaje
+    totalFinal = subtotalConPromo - descuentoAplicado
+
+    let html = `
+        <div class="resumen-row">
+            <span>Subtotal</span>
+            <b>$${formatoPesos(total)}</b>
+        </div>
+
+        <div class="resumen-row resumen-descuento">
+            <span>Promo ${promoPorcentaje}%</span>
+            <b>${descuentoPromo === 0 ? "$0" : "-$" + formatoPesos(descuentoPromo)}</b>
+        </div>
+
+        <div class="resumen-row resumen-descuento">
+            <span>Descuento pago</span>
+            <b>${descuentoAplicado === 0 ? "$0" : "-$" + formatoPesos(descuentoAplicado)}</b>
+        </div>
+
+        <div class="resumen-row resumen-total">
+            <span>Total</span>
+            <span>$${formatoPesos(totalFinal)}</span>
+        </div>
     `
-} else {
-    totalFinal = total
-    html = `
-    <div class="resumen-row resumen-total" style="border-top:none; margin-top:0; padding-top:0;">
-        <span>Total</span>
-        <span>$${total}</span>
-    </div>
-    `
-}
 
-document.getElementById("total").innerHTML = html
+    document.getElementById("total").innerHTML = html
 
     calcularVuelto()
 }

@@ -131,7 +131,7 @@ body {
 
 <body>
 
-<div class="header">🧾 Caja CHIC PRO FIREBASE v2.44</div>
+<div class="header">🧾 Caja CHIC PRO FIREBASE v2.45</div>
 
 <div class="container">
 
@@ -923,6 +923,7 @@ render()
     let promoPorcentaje = parseFloat(document.getElementById("promoInput")?.value) || 0
     let promoDecimal = promoPorcentaje / 100
 
+    // 🔹 DESCUENTO POR MÉTODO DE PAGO
     let descuentoPagoPorcentaje = 0
 
     if (metodo === "Efectivo") {
@@ -931,19 +932,19 @@ render()
         descuentoPagoPorcentaje = 0.10
     }
 
-    let descuentoPromo = 0
+    // 🔹 PROMO (SIEMPRE SOBRE SUBTOTAL)
+    let descuentoPromo = total * promoDecimal
 
-    carrito.forEach(item => {
-        if (tienePromo(item) && promoDecimal > 0) {
-            descuentoPromo += item.precio * promoDecimal
-        }
-    })
-
+    // 🔹 SUBTOTAL CON PROMO
     let subtotalConPromo = total - descuentoPromo
 
+    // 🔹 DESCUENTO PAGO SOBRE LO QUE QUEDA
     descuentoAplicado = subtotalConPromo * descuentoPagoPorcentaje
+
+    // 🔹 TOTAL FINAL
     totalFinal = subtotalConPromo - descuentoAplicado
 
+    // 🔹 UI
     let html = `
         <div class="resumen-row">
             <span>Subtotal</span>

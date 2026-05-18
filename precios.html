@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+<style>
+
+body{
+    font-family:Arial;
+    background:#f5f5f5;
+    padding:15px;
+}
+
+h2{
+    text-align:center;
+}
+
+.item{
+    background:white;
+    border-radius:12px;
+    padding:14px;
+    margin-bottom:10px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    box-shadow:0 2px 6px rgba(0,0,0,0.05);
+}
+
+input{
+    width:120px;
+    padding:10px;
+    border-radius:10px;
+    border:1px solid #ccc;
+    text-align:center;
+    font-size:16px;
+}
+
+#buscador{
+    width:100%;
+    padding:12px;
+    border-radius:12px;
+    border:1px solid #ccc;
+    margin-bottom:15px;
+    box-sizing:border-box;
+}
+
+</style>
+</head>
+
+<body>
+
+<h2>💲 Precios CHIC v1.0</h2>
+
+<input 
+    type="text"
+    id="buscador"
+    placeholder="🔍 Buscar producto..."
+    oninput="render()"
+/>
+
+<div id="lista"></div>
+
+<script>
+
+// 🔥 FIREBASE
+const firebaseConfig = {
+  apiKey: "TU_APIKEY",
+  authDomain: "chic-pos.firebaseapp.com",
+  projectId: "chic-pos",
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+let precios = []
+
+// 👂 ESCUCHAR PRECIOS
+db.collection("precios").onSnapshot(snapshot => {
+
+    precios = []
+
+    snapshot.forEach(doc => {
+
+        precios.push({
+            id: doc.id,
+            precio: doc.data().precio || 0
+        })
+
+    })
+
+    render()
+
+})
+
+// 🔁 RENDER
+function render(){
+
+    let buscador = document.getElementById("buscador").value.toLowerCase()
+
+    let html = ""
+
+    precios.forEach(item => {
+
+        if(!item.id.toLowerCase().includes(buscador)) return
+
+        html += `
+        <div class="item">
+
+            <div>
+                <b>${item.id}</b>
+            </div>
+
+            <div>
+                <input
+                    type="number"
+                    value="${item.precio}"
+                    onchange="actualizarPrecio('${item.id}', this.value)"
+                >
+            </div>
+
+        </div>
+        `
+    })
+
+    document.getElementById("lista").innerHTML = html
+}
+
+// 💾 ACTUALIZAR
+function actualizarPrecio(id, precio){
+
+    db.collection("precios").doc(id).set({
+        precio: parseInt(precio)
+    })
+
+}
+
+</script>
+
+</body>
+</html>

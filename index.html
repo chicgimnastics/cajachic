@@ -125,13 +125,30 @@ body {
     font-size: 22px;
     font-weight: bold;
 }
+    .promo-btn {
+    flex: 1;
+    min-width: 60px;
+    padding: 10px;
+    border: none;
+    border-radius: 10px;
+    background: black;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.promo-btn:hover {
+    opacity: 0.85;
+    transform: scale(1.03);
+}
 </style>
 
 </head>
 
 <body>
 
-<div class="header">🧾 Caja CHIC PRO FIREBASE v2.47</div>
+<div class="header">🧾 Caja CHIC PRO FIREBASE v2.48</div>
 
 <div class="container">
 
@@ -180,6 +197,24 @@ body {
     max="100"
     oninput="calcularTotalFinal()"
 />
+
+    <div style="display:flex; gap:6px; margin-top:8px; flex-wrap:wrap;">
+
+    <button type="button" onclick="setPromo(10)" class="promo-btn">10%</button>
+
+    <button type="button" onclick="setPromo(15)" class="promo-btn">15%</button>
+
+    <button type="button" onclick="setPromo(20)" class="promo-btn">20%</button>
+
+    <button type="button" onclick="setPromo(25)" class="promo-btn">25%</button>
+
+    <button type="button" onclick="setPromo(30)" class="promo-btn">30%</button>
+
+    <button type="button" onclick="setPromo(0)" class="promo-btn">
+        Limpiar
+    </button>
+
+</div>
 
 <select id="pago" style="width:100%; padding:10px; margin-top:10px;">
     <option>Efectivo</option>
@@ -915,6 +950,15 @@ render()
         item.producto === "CHIC 1.0" ||
         item.producto === "CHIC 2.0 Negro"
     )
+}
+
+    // Funciones de los botones de descuento
+    
+    function setPromo(valor) {
+
+    document.getElementById("promoInput").value = valor
+
+    calcularTotalFinal()
 }
 
     // Calculae Total Final

@@ -395,6 +395,22 @@ const URL_SHEETS = "https://script.google.com/macros/s/AKfycbzqftjGLBS89N_wp7vf3
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
+async function subirPreciosIniciales() {
+
+    for (let nombre in PRODUCTOS) {
+
+        let precio = PRODUCTOS[nombre].precio || 0
+
+        await db.collection("precios").doc(nombre).set({
+            precio: precio
+        })
+
+        console.log("Subido:", nombre)
+    }
+
+    alert("✅ Precios subidos")
+}
+    
 let carrito = []
 let total = 0
 let totalFinal = 0

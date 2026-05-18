@@ -401,14 +401,17 @@ async function subirPreciosIniciales() {
 
         let precio = PRODUCTOS[nombre].precio || 0
 
-        await db.collection("precios").doc(nombre).set({
+        let idSeguro = nombre.replaceAll("/", "-")
+
+        await db.collection("precios").doc(idSeguro).set({
+            nombre: nombre,
             precio: precio
         })
 
-        console.log("Subido:", nombre)
+        console.log("Subido:", nombre, precio)
     }
 
-    alert("✅ Precios subidos")
+    alert("✅ Precios subidos a Firebase")
 }
     
 let carrito = []

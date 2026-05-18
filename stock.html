@@ -81,7 +81,7 @@ input {
 
 <body>
 
-<h2>📦 Stock CHIC v2.4</h2>
+<h2>📦 Stock CHIC v2.5</h2>
      <button class="btn-agregar" onclick="agregarProducto()">
     ➕ Agregar producto
 </button>
@@ -213,8 +213,16 @@ function actualizarStock(codigo, valor) {
 
             // 🔥 si no existe, lo crea
             ref.set({
-                stock: cantidad
-            })
+    stock: cantidad
+})
+
+let precio = parseInt(prompt("Precio del producto")) || 0
+let idPrecio = codigo.replaceAll("/", "-")
+
+db.collection("precios").doc(idPrecio).set({
+    nombre: codigo,
+    precio: precio
+})
         }
 
     })

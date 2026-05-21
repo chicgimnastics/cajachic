@@ -81,7 +81,7 @@ input {
 
 <body>
 
-<h2>📦 Stock CHIC v2.6</h2>
+<h2>📦 Stock CHIC v2.7</h2>
      <button class="btn-agregar" onclick="agregarProducto()">
     ➕ Agregar producto
 </button>
@@ -119,6 +119,7 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
 let stockData = []
+let preciosDB = {}
 
 // 👂 escuchar stock
 db.collection("stock").onSnapshot(snapshot => {
@@ -135,6 +136,20 @@ db.collection("stock").onSnapshot(snapshot => {
     renderStock()
 })
 
+    db.collection("precios").onSnapshot(snapshot => {
+
+    preciosDB = {}
+
+    snapshot.forEach(doc => {
+        let data = doc.data()
+        let nombre = data.nombre || doc.id
+
+        preciosDB[nombre] = data.precio || 0
+    })
+
+    renderStock()
+})
+
 // 🔁 render
 function renderStock() {
 
@@ -146,6 +161,7 @@ function renderStock() {
         if (!item.codigo.toLowerCase().includes(buscador)) return
 
         let stock = item.stock ?? 0
+        let precio = preciosDB[item.codigo] || 0
 
         html += `
         <div class="item">
@@ -153,12 +169,29 @@ function renderStock() {
                 ${item.codigo}<br>
 
                 Stock:
-                <input 
-                    type="number" 
-                    value="${stock}" 
-                    onchange="actualizarStock('${item.codigo}', this.value)"
-                    style="width:60px;"
-                >
+                <div style="display:flex; gap:8px; margin-top:6px; align-items:center; flex-wrap:wrap;">
+
+    <label>
+        Stock:
+        <input 
+            type="number" 
+            value="${stock}" 
+            onchange="actualizarStock('${item.codigo}', this.value)"
+            style="width:65px;"
+        >
+    </label>
+
+    <label>
+        Precio:
+        <input 
+            type="number" 
+            value="${precio}" 
+            onchange="actualizarPrecio('${item.codigo}', this.value)"
+            style="width:100px;"
+        >
+    </label>
+
+</div>
             </div>
 
             <div>
@@ -178,6 +211,16 @@ function actualizarStock(codigo, valor) {
 
     db.collection("stock").doc(codigo).update({
         stock: parseInt(valor)
+    })
+}
+
+    function actualizarPrecio(codigo, valor) {
+
+    let idPrecio = codigo.replaceAll("/", "-")
+
+    db.collection("precios").doc(idPrecio).set({
+        nombre: codigo,
+        precio: parseInt(valor) || 0
     })
 }
 

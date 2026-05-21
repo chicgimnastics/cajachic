@@ -148,7 +148,7 @@ body {
 
 <body>
 
-<div class="header">🧾 Caja CHIC PRO FIREBASE v2.48</div>
+<div class="header">🧾 Caja CHIC PRO FIREBASE v2.49</div>
 
 <div class="container">
 
@@ -419,6 +419,8 @@ let total = 0
 let totalFinal = 0
 let descuentoAplicado = 0
 let stockDB = {}
+let preciosDB = {}
+    
 function formatoPesos(numero) {
     return Math.round(numero).toLocaleString("es-AR")
 }    
@@ -430,6 +432,24 @@ function formatoPesos(numero) {
     render() // 🔄 actualiza UI cuando cambia stock
 })
 
+    db.collection("precios").onSnapshot(snapshot => {
+
+    preciosDB = {}
+
+    snapshot.forEach(doc => {
+
+        let data = doc.data()
+        let nombre = data.nombre || doc.id
+
+        preciosDB[nombre] = data.precio || 0
+    })
+
+    render()
+})
+    
+function obtenerPrecio(producto, precioRespaldo = 0) {
+    return preciosDB[producto] || precioRespaldo || 0
+}
 // 🧠 producto
 function getProductoData(codigo) {
 
@@ -512,7 +532,7 @@ db.collection("scanner").onSnapshot(snapshot => {
 carrito.push({
     producto: data.producto,
     codigo: codigo,
-    precio: data.precio,
+    precio: obtenerPrecio(data.producto, data.precio),
     scanId: doc.id
 })
 
@@ -543,7 +563,7 @@ function generarListaManual() {
                     texto: nombre + " " + talle,
                     codigo: codigoStock,
                     producto: nombre,
-                    precio: prod.precio
+                    precio: obtenerPrecio(nombre, prod.precio)
                 })
             })
         } else {
@@ -566,7 +586,7 @@ function generarListaManual() {
                 texto: codigo,
                 codigo: codigo,
                 producto: codigo,
-                precio: 0
+                precio: obtenerPrecio(codigo, 0)
             })
         }
     }
@@ -792,7 +812,7 @@ if (cantidadEnCarrito >= stock) {
 carrito.push({
     producto: data.producto,
     codigo: codigo,
-    precio: data.precio
+    precio: obtenerPrecio(data.producto, data.precio)
 })
     }
 

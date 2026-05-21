@@ -81,7 +81,7 @@ input {
 
 <body>
 
-<h2>📦 Stock CHIC v2.5</h2>
+<h2>📦 Stock CHIC v2.6</h2>
      <button class="btn-agregar" onclick="agregarProducto()">
     ➕ Agregar producto
 </button>
@@ -233,11 +233,23 @@ db.collection("precios").doc(idPrecio).set({
 
     function eliminarProducto(codigo) {
 
-    let ok = confirm("¿Eliminar " + codigo + "?")
+    let ok = confirm("¿Eliminar " + codigo + " de stock y precios?")
 
     if (!ok) return
 
+    let idPrecio = codigo.replaceAll("/", "-")
+
     db.collection("stock").doc(codigo).delete()
+        .then(() => {
+            return db.collection("precios").doc(idPrecio).delete()
+        })
+        .then(() => {
+            alert("✅ Producto eliminado de stock y precios")
+        })
+        .catch(error => {
+            console.error("Error eliminando producto:", error)
+            alert("❌ Error al eliminar el producto")
+        })
 }
 
     // Resetear producto

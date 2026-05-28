@@ -148,7 +148,7 @@ body {
 
 <body>
 
-<div class="header">🧾 Caja CHIC PRO FIREBASE v2.49</div>
+<div class="header">🧾 Caja CHIC PRO FIREBASE v2.50</div>
 
 <div class="container">
 
@@ -447,9 +447,26 @@ function formatoPesos(numero) {
     render()
 })
     
-function obtenerPrecio(producto, precioRespaldo = 0) {
-    return preciosDB[producto] || precioRespaldo || 0
+function obtenerPrecio(productoOCodigo, precioRespaldo = 0) {
+    // 1️⃣ Intentar buscar por el código exacto (Ej: "CHIC PRO 35" o "Buzo Negro S")
+    if (preciosDB[productoOCodigo] !== undefined) {
+        return preciosDB[productoOCodigo];
+    }
+
+    // 2️⃣ Si no está, probar limpiando el talle al final (detectar formato "Producto Talle")
+    let partes = productoOCodigo.split(" ");
+    if (partes.length > 1) {
+        partes.pop(); // saca el talle del final
+        let nombreBase = partes.join(" ");
+        if (preciosDB[nombreBase] !== undefined) {
+            return preciosDB[nombreBase];
+        }
+    }
+
+    // 3️⃣ Si no está en Firebase, usar el del objeto estático de respaldo
+    return precioRespaldo || 0;
 }
+    
 // 🧠 producto
 function getProductoData(codigo) {
 
@@ -559,11 +576,12 @@ function generarListaManual() {
                 if (nombre === "CHIC 2.0") codigoStock = talle
                 if (nombre === "CHIC 2.0 Negro") codigoStock = talle
 
+                // 🔥 Modificado: enviamos codigoStock para que busque el precio de ese talle exacto
                 lista.push({
                     texto: nombre + " " + talle,
                     codigo: codigoStock,
                     producto: nombre,
-                    precio: obtenerPrecio(nombre, prod.precio)
+                    precio: obtenerPrecio(codigoStock, prod.precio) 
                 })
             })
         } else {
@@ -571,7 +589,7 @@ function generarListaManual() {
                 texto: nombre,
                 codigo: nombre,
                 producto: nombre,
-                precio: prod.precio
+                precio: obtenerPrecio(nombre, prod.precio) // 🔥 Modificado para usar obtenerPrecio correctamente
             })
         }
     }
@@ -591,9 +609,8 @@ function generarListaManual() {
         }
     }
 
-    return lista
+    return lista;
 }
-
 function buscarProductoManual() {
     let texto = document.getElementById("buscadorManual").value.toLowerCase().trim()
     let select = document.getElementById("resultadoManual")
@@ -630,7 +647,7 @@ function agregarManual() {
     let selectedOption = select.options[select.selectedIndex]
 
     let producto = selectedOption.getAttribute("data-producto")
-    let precio = parseFloat(selectedOption.getAttribute("data-precio")) || 0
+    let precio = obtenerPrecio(codigo, parseFloat(selectedOption.getAttribute("data-precio")));
 
     if (precio === 0) {
         precio = parseFloat(prompt("Este producto no tiene precio cargado. Ingresá el precio:")) || 0
